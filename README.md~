@@ -1,4 +1,4 @@
 Social Bib
 ==========
 
-Projeto para o Sistema de uma Biblioteca de livros compartilhada.
+Projeto para o sistema de uma biblioteca compartilhada entre os amigos.
