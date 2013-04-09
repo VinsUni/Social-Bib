@@ -54,7 +54,10 @@ public class UsuarioMB {
     public String inserir(){
         if(validarCodigo() == true){
             dao.create(usuario);
-            return "principal.xhtml";
+            FacesMessage message = new FacesMessage("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            facesContext.addMessage(null, message);
+            return "index.xhtml";
         }else{
             FacesMessage message = new FacesMessage("O código ou o e-mail está errado.");
             FacesContext facesContext = FacesContext.getCurrentInstance();

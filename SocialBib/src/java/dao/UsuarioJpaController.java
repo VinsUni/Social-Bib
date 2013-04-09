@@ -9,8 +9,10 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Usuario;
@@ -131,6 +133,24 @@ public class UsuarioJpaController implements Serializable {
             return ((Long) q.getSingleResult()).intValue();
         } finally {
             em.close();
+        }
+    }
+    
+    public Usuario findUsuario(String email, String senha){
+        System.out.println("Email" + email + "\tSenha:" + senha);
+        EntityManager em = getEntityManager();
+        TypedQuery<Usuario> query;
+        query = em.createQuery("select u from Usuario u where u.email=:email" +
+                               " and u.senha=:senha",
+                               Usuario.class);
+        query.setParameter("email", email);
+        query.setParameter("senha", senha);
+        try{
+            System.out.println("Try " + query.getSingleResult());
+            return query.getSingleResult();
+        }catch(NoResultException e){
+            System.out.println("Entrou no catch");
+            return null;
         }
     }
     

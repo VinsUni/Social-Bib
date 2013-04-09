@@ -35,11 +35,9 @@
             <br/>
             
             <h:outputText value="CPF "/>
-            <p:inputText id="campoCpf" value="#{usuarioMB.usuario.cpf}" required="true"
+            <p:inputMask id="campoCpf" value="#{usuarioMB.usuario.cpf}" required="true"
                          requiredMessage="O CPF é obrigatório" validatorMessage="Digite o CPF no formato 123.456.789-01"
-                         maxlength="14">
-                <f:validateRegex pattern="^(\d{3}\.\d{3}\.\d{3}-\d{2})"/>
-            </p:inputText>
+                         maxlength="14" mask="999.999.999-99"/>
             <h:message for="campoCpf"/>
             <br/>
             <br/>
