@@ -18,6 +18,7 @@ codLivro INT NOT NULL,
 dono INT NOT NULL,
 titulo VARCHAR (50),
 autor VARCHAR (50),
+genero VARCHAR (50),
 editora VARCHAR (50),
 ano INT,
 
