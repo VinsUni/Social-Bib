@@ -5,6 +5,7 @@
 package beans;
 
 import dao.UsuarioJpaController;
+import javax.el.ELResolver;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -42,9 +43,13 @@ public class LoginMB {
      * @return true se validar ou false, caso contrário.
      */
     public boolean validarLogin(){
-        Usuario u = dao.findUsuario(email, getSenha());
+        Usuario u = dao.findUsuario(email, senha);
         if (u != null){
             usuario = u;
+            FacesContext c = FacesContext.getCurrentInstance();
+            ELResolver r = c.getApplication().getELResolver();
+            UsuarioMB umb = (UsuarioMB) r.getValue(c.getELContext(), null, "usuarioMB");
+            umb.setUsuario(usuario);
             return true;
         } else {
             return false;
@@ -79,7 +84,7 @@ public class LoginMB {
     private void setDeslogado(){
         logado = false;
     }
-
+    
     /**
      * @return the email
      */
@@ -108,6 +113,19 @@ public class LoginMB {
             facesContext.addMessage("formEntrar", message);
             return null;
         }
+    }
+    
+    /**
+     * Desloga o usuário da sessão (logado = false). Além disso, dá um new no usuário do UsuarioMB
+     e nos campos email e senha do LoginMB.
+     * @return a página inicial (index.xhtml) aonde será redirecionado automaticamente.
+     */
+    public String deslogar(){
+        setDeslogado();
+        usuario = new Usuario();
+        email = "";        
+        senha = "";
+        return "index.xhtml";
     }
     
     /**

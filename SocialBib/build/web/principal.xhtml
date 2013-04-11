@@ -1,12 +1,62 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
     <h:head>
-        <title>Facelet Title</title>
+        <title>Página Principal</title>
     </h:head>
     <h:body>
-        Página principal
+        <h:outputText value="Dados da conta:"/>
+        <br/>
+        <br/>
+        <br/>
+        
+        <h:form id="formAlterar">
+                <h:outputText value="Nome "/>
+                <p:inputText id="campoNome" value="#{usuarioMB.usuario.nome}" required="true" 
+                             requiredMessage="O nome é obrigatório" maxlength="250"/>
+                <h:message for="campoNome"/>
+                <br/>
+
+                <h:outputText value="E-mail "/>
+                <p:inputText id="campoEmail" value="#{usuarioMB.usuario.email}" required="true"
+                             requiredMessage="O email é obrigatório" validatorMessage="Este e-mail está errado"
+                             maxlength="100">
+                    <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$"/>
+                </p:inputText>
+                <h:message for="campoEmail"/>
+                <br/>
+
+                <h:outputText value="CPF "/>
+                <p:inputMask id="campoCpf" value="#{usuarioMB.usuario.cpf}" required="true"
+                             requiredMessage="O CPF é obrigatório" validatorMessage="Digite o CPF no formato 123.456.789-01"
+                             maxlength="14" mask="999.999.999-99"/>
+                <h:message for="campoCpf"/>
+                <br/>
+                <br/>
+
+                <h:outputText value="Senha " />  
+                <p:password id="pwd1" value="#{usuarioMB.usuario.senha}" match="pwd2"
+                            required="true" requiredMessage="Digite sua senha"
+                            validatorMessage="As senhas estão diferentes"/>  
+                <h:message for="pwd1"/>
+                <br/>
+                <br/>
+                <h:outputText value="Confirme sua senha " />  
+                <p:password id="pwd2" value="#{usuarioMB.usuario.senha}" required="true"
+                            requiredMessage="Confirme sua senha"
+                            validatorMessage="As senhas estão diferentes"/> 
+                <h:message for="pwd2"/>
+                <br/>
+                <br/>
+
+                <p:commandButton ajax="false" value="Alterar dados" action="#{usuarioMB.alterar()}"/>
+            </h:form>
+            <h:form>
+                <p:commandButton ajax="false" value="Excluir conta" action="#{usuarioMB.excluir()}"/>
+            </h:form>
     </h:body>
 </html>
 

@@ -8,6 +8,7 @@ import dao.UsuarioJpaController;
 import dao.exceptions.NonexistentEntityException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -24,13 +25,12 @@ import util.Notificador;
 @ManagedBean
 @RequestScoped
 public class UsuarioMB {
+
     private Usuario usuario = new Usuario();
-    
     private String emailDeCadastro = new String();
-    
     private String codigo = new String();
-    
     private UsuarioJpaController dao = new UsuarioJpaController(EMF.getEntityManagerFactory());
+
     /**
      * Creates a new instance of UsuarioMB
      */
@@ -50,15 +50,15 @@ public class UsuarioMB {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
-    
-    public String inserir(){
-        if(validarCodigo() == true){
+
+    public String inserir() {
+        if (validarCodigo() == true) {
             dao.create(usuario);
             FacesMessage message = new FacesMessage("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
             FacesContext facesContext = FacesContext.getCurrentInstance();
             facesContext.addMessage(null, message);
             return "index.xhtml";
-        }else{
+        } else {
             FacesMessage message = new FacesMessage("O código ou o e-mail está errado.");
             FacesContext facesContext = FacesContext.getCurrentInstance();
             facesContext.addMessage("formCadastro:campoCodigo", message);
@@ -66,86 +66,117 @@ public class UsuarioMB {
             return null;
         }
     }
-    
-    public void alterar(){
+
+    public void alterar() {
         try {
+            FacesContext context = FacesContext.getCurrentInstance();
+            Application app = context.getApplication();
+            LoginMB lmb = (LoginMB) app.evaluateExpressionGet(context, "#{loginMB}",
+                    LoginMB.class);
+            usuario.setId(lmb.getUsuario().getId());
+            
             dao.edit(usuario);
+            
+            lmb.setUsuario(usuario);
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
+            FacesMessage message = new FacesMessage("Não foi possível salvar as alterações.");
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            facesContext.addMessage("formAlterar", message);
         }
     }
     
-    public void excluir(){
+    /**
+     * Desloga o usuário e exclui todos os seus dados do sistema.
+     */
+    public String excluir() {
         try {
+            FacesContext context = FacesContext.getCurrentInstance();
+            Application app = context.getApplication();
+            LoginMB lmb = (LoginMB) app.evaluateExpressionGet(context, "#{loginMB}",
+                    LoginMB.class);
+            usuario.setId(lmb.getUsuario().getId());
             dao.destroy(usuario.getId());
+            return lmb.deslogar();
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
     }
-
-    public String enviarCodigo(){
+    
+    /**
+     * Pré-cadastro no sistema. Gera um código a partir do email do usuário e
+     envia para este (email) com uma mensagem de boas vindas e instruções de cadastro.
+     * @return Retorna uma página redirecionando automaticamente.
+     */
+    public String enviarCodigo() {
         codigo = gerarCodigo(emailDeCadastro);
-        
-        Notificador notificador = new Notificador();
+
+        /*Notificador notificador = new Notificador();
         try {
             notificador.enviarMensagem(emailDeCadastro, "Cadastro no Social Bib",
                     "Olá!\n\n"
-                  + "Você deu o primeiro passo para o cadastro no Social Bib.\n"
-                  + "Agora, informe o código abaixo e no formulário de cadastro.\n\n"
-                  + codigo
-                  + "\n\nObrigado por utilizar nossos serviços.");
+                    + "Você deu o primeiro passo para o cadastro no Social Bib.\n"
+                    + "Agora, informe o código abaixo e no formulário de cadastro.\n\n"
+                    + codigo
+                    + "\n\nObrigado por utilizar nossos serviços.");
         } catch (EmailException ex) {
-            System.out.println("----------------- O email de cadastro era: " + emailDeCadastro);
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         codigo = "";
-        
+        */
         return "cadastro.xhtml";
     }
-    
-    public boolean validarCodigo(){
-        String aux1 = codigo.toString();
+
+    /**
+     * Valida o código e o email que estão neste Managed Bean.
+     
+     * @return true se validar ou false, caso contrário.
+     */
+    public boolean validarCodigo() {
+        return true;
+        /*String aux1 = codigo.toString();
         String aux2 = gerarCodigo(usuario.getEmail()).toString();
-        return aux1.equals(aux2);
+        return aux1.equals(aux2);*/
     }
-    
-    public String gerarCodigo(String email){
+
+    public String gerarCodigo(String email) {
         String aux2 = "";
         codigo = "";
-        
+
         int i = 0, v1 = 0, v2 = 0, aux = 0;
 
-        for(i=0; i<email.length(); i++){
+        for (i = 0; i < email.length(); i++) {
             aux += (int) email.charAt(i) * i;
             setCodigo(getCodigo() + ((int) email.charAt(i) + 50) * i); // + 50 pra "criptografar"
         }
 
-        v1 = aux % (email.length()+2); // +2 faz parte do calculo
-        if (v1 < 2){
+        v1 = aux % (email.length() + 2); // +2 faz parte do calculo
+        if (v1 < 2) {
             v1 = 0;
         } else {
-            v1 = email.length()+1-v1;
+            v1 = email.length() + 1 - v1;
         }
         setCodigo(getCodigo() + (v1 + 50));
-        
+
         aux = 0;
-        for(i=0; i<email.length(); i++){
+        for (i = 0; i < email.length(); i++) {
             aux += (int) (email.charAt(i) * i);
         }
-        v2 = aux % (email.length()+2); // +2 faz parte do calculo
-        if (v2 < 2){
+        v2 = aux % (email.length() + 2); // +2 faz parte do calculo
+        if (v2 < 2) {
             v2 = 0;
         } else {
-            v2 = email.length()+1-v2;
+            v2 = email.length() + 1 - v2;
         }
         setCodigo(getCodigo() + (v2 + 50));
-        
+
         String retorno = codigo.toString();
         codigo = "";
-        
+
         return retorno;
     }
 
