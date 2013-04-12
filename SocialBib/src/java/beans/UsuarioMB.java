@@ -52,15 +52,28 @@ public class UsuarioMB {
     }
 
     public String inserir() {
-        if (validarCodigo() == true) {
-            dao.create(usuario);
-            FacesMessage message = new FacesMessage("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            facesContext.addMessage(null, message);
-            return "index.xhtml";
+        FacesMessage message;
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        
+        if (validarCodigo()) {
+            if(validarCpf()){
+                if(validarEmail()){
+                    dao.create(usuario);
+                    message = new FacesMessage("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
+                    facesContext.addMessage(null, message);
+                    return "index.xhtml";
+                } else {
+                    message = new FacesMessage("Este email já existe.");
+                    facesContext.addMessage("formCadastro:campoEmail", message);
+                    return null;
+                }
+            } else {
+                message = new FacesMessage("Este CPF já existe.");
+                facesContext.addMessage("formCadastro:campoCpf", message);
+                return null;
+            }
         } else {
-            FacesMessage message = new FacesMessage("O código ou o e-mail está errado.");
-            FacesContext facesContext = FacesContext.getCurrentInstance();
+            message = new FacesMessage("O código ou o e-mail está errado.");
             facesContext.addMessage("formCadastro:campoCodigo", message);
             facesContext.addMessage("formCadastro:campoEmail", message);
             return null;
@@ -68,22 +81,33 @@ public class UsuarioMB {
     }
 
     public void alterar() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        FacesMessage message;
+        
         try {
-            FacesContext context = FacesContext.getCurrentInstance();
-            Application app = context.getApplication();
-            LoginMB lmb = (LoginMB) app.evaluateExpressionGet(context, "#{loginMB}",
-                    LoginMB.class);
-            usuario.setId(lmb.getUsuario().getId());
-            
-            dao.edit(usuario);
-            
-            lmb.setUsuario(usuario);
+            if(validarCpf()){
+                if(validarEmail()){
+                    Application app = facesContext.getApplication();
+                    LoginMB lmb = (LoginMB) app.evaluateExpressionGet(facesContext, "#{loginMB}",
+                            LoginMB.class);
+                    usuario.setId(lmb.getUsuario().getId());
+
+                    dao.edit(usuario);
+
+                    lmb.setUsuario(usuario);
+                } else {
+                    message = new FacesMessage("Este email já existe.");
+            facesContext.addMessage("formCadastro:campoEmail", message);
+                }
+            } else {
+                message = new FacesMessage("Este CPF já existe.");
+                facesContext.addMessage("formCadastro:campoCpf", message);
+            }
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
-            FacesMessage message = new FacesMessage("Não foi possível salvar as alterações.");
-            FacesContext facesContext = FacesContext.getCurrentInstance();
+            message = new FacesMessage("Não foi possível salvar as alterações.");
             facesContext.addMessage("formAlterar", message);
         }
     }
@@ -114,7 +138,7 @@ public class UsuarioMB {
     public String enviarCodigo() {
         codigo = gerarCodigo(emailDeCadastro);
 
-        /*Notificador notificador = new Notificador();
+        Notificador notificador = new Notificador();
         try {
             notificador.enviarMensagem(emailDeCadastro, "Cadastro no Social Bib",
                     "Olá!\n\n"
@@ -127,7 +151,7 @@ public class UsuarioMB {
         }
 
         codigo = "";
-        */
+        
         return "cadastro.xhtml";
     }
 
@@ -137,10 +161,9 @@ public class UsuarioMB {
      * @return true se validar ou false, caso contrário.
      */
     public boolean validarCodigo() {
-        return true;
-        /*String aux1 = codigo.toString();
+        String aux1 = codigo.toString();
         String aux2 = gerarCodigo(usuario.getEmail()).toString();
-        return aux1.equals(aux2);*/
+        return aux1.equals(aux2);
     }
 
     public String gerarCodigo(String email) {
@@ -206,5 +229,21 @@ public class UsuarioMB {
      */
     public void setCodigo(String codigo) {
         this.codigo = codigo;
+    }
+    
+    public boolean validarEmail(){
+        /*Usuario u = dao.findUsuarioPorEmail(usuario.getEmail());
+        if(u != null){
+            return u.getEmail().equals(usuario.getEmail());
+        }*/
+        return true;
+    }
+    
+    public boolean validarCpf(){
+        /*Usuario u = dao.findUsuarioPorCpf(usuario.getCpf());
+        if(u != null){
+            return u.getCpf().equals(usuario.getCpf());
+        }*/
+        return true;
     }
 }
