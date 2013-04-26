@@ -5,10 +5,12 @@
 package modelo;
 
 import java.io.Serializable;
+import java.util.*;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -28,9 +30,6 @@ public class Usuario implements Serializable {
     private String email;
     
     private String senha;
-    
-    // Ainda nao tem cadastro de livros
-    // private List<Livro> livros;
 
     public Long getId() {
         return id;

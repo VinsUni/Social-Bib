@@ -83,26 +83,37 @@ public class UsuarioMB {
     public void alterar() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         FacesMessage message;
+        Application app = facesContext.getApplication();
+        LoginMB lmb = (LoginMB) app.evaluateExpressionGet(facesContext, "#{loginMB}",
+                      LoginMB.class);
+        usuario.setId(lmb.getUsuario().getId());
+        Usuario antigo = dao.findUsuario(usuario.getId());
+        boolean validouCpf = true;
+        boolean validouEmail = true;
+        
+        if(!(antigo.getCpf().equals(usuario.getCpf()))){
+            validouCpf = validarCpf();
+        }
+        
+        if(!(antigo.getEmail().equals(usuario.getEmail()))){
+            validouEmail = validarEmail();
+        }
+        
+        if(!validouCpf){
+            message = new FacesMessage("Este CPF já existe.");
+            facesContext.addMessage("formAlterar:campoCpf", message);
+            return;
+        }
+        
+        if(!validouEmail){
+            message = new FacesMessage("Este email já existe.");
+            facesContext.addMessage("formAlterar:campoEmail", message);
+            return;
+        }
         
         try {
-            if(validarCpf()){
-                if(validarEmail()){
-                    Application app = facesContext.getApplication();
-                    LoginMB lmb = (LoginMB) app.evaluateExpressionGet(facesContext, "#{loginMB}",
-                            LoginMB.class);
-                    usuario.setId(lmb.getUsuario().getId());
-
-                    dao.edit(usuario);
-
-                    lmb.setUsuario(usuario);
-                } else {
-                    message = new FacesMessage("Este email já existe.");
-            facesContext.addMessage("formCadastro:campoEmail", message);
-                }
-            } else {
-                message = new FacesMessage("Este CPF já existe.");
-                facesContext.addMessage("formCadastro:campoCpf", message);
-            }
+            dao.edit(usuario);
+            lmb.setUsuario(usuario);
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
