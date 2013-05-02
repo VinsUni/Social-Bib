@@ -62,11 +62,11 @@ and open the template in the editor.
 
         </h:form>
 
-        <h:form id="botaoExcluir">
+        <h:form id="botaoExcluirLivro">
             <p:commandButton ajax="false" value="Excluir" action="#{livroMB.excluir()}"/>
         </h:form>
 
-        <h:form id="form" > 
+        <h:form id="formTabelaLivro" > 
             <p:growl id="growl" showSummary="false" showDetail="true"/>
 
             <p:dataTable id="livros" var="livro" value="#{livroMB.livros}" rowKey="#{livro}"

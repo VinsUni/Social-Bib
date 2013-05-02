@@ -8,14 +8,12 @@ import dao.UsuarioJpaController;
 import dao.exceptions.NonexistentEntityException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.application.Application;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.FacesContext;
 import modelo.Usuario;
 import org.apache.commons.mail.EmailException;
 import util.EMF;
+import util.FacesUtil;
 import util.Notificador;
 
 /**
@@ -51,41 +49,50 @@ public class UsuarioMB {
         this.usuario = usuario;
     }
 
+    /**
+     * Insere (cadastra) um novo usuário. Pega o usuário que está neste Bean e valida
+     * seus campos. Caso algum campo falhe na validação, adiciona mensagens de
+     * erro e retorna para a mesma página. Caso não haja falha na validação,
+     * o usuário é cadastrado, adiciona-se uma mensagem de confirmação e redireciona
+     * para o index.xhtml
+     * @return a página a ser redirecionada automaticamente. Retorna null se falhar na
+     * validação. Retorna "index.xhtml", caso contrário.
+     */
     public String inserir() {
-        FacesMessage message;
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        
         if (validarCodigo()) {
             if(validarCpf()){
                 if(validarEmail()){
                     dao.create(usuario);
-                    message = new FacesMessage("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
-                    facesContext.addMessage(null, message);
+                    FacesUtil.adicionarMensagem(null, "Pronto, você se cadastrou!"
+                                                + "Agora já pode entrar no sistema.");
                     return "index.xhtml";
                 } else {
-                    message = new FacesMessage("Este email já existe.");
-                    facesContext.addMessage("formCadastro:campoEmail", message);
+                    FacesUtil.adicionarMensagem("formCadastro:campoEmail",
+                            "Este email já existe.");
                     return null;
                 }
             } else {
-                message = new FacesMessage("Este CPF já existe.");
-                facesContext.addMessage("formCadastro:campoCpf", message);
+                FacesUtil.adicionarMensagem("formCadastro:campoCpf", "Este CPF já existe.");
                 return null;
             }
         } else {
-            message = new FacesMessage("O código ou o e-mail está errado.");
-            facesContext.addMessage("formCadastro:campoCodigo", message);
-            facesContext.addMessage("formCadastro:campoEmail", message);
+            FacesUtil.adicionarMensagem("O código ou o e-mail está errado.",
+                    "formCadastro:campoCodigo");
+            FacesUtil.adicionarMensagem("O código ou o e-mail está errado.",
+                    "formCadastro:campoEmail");
             return null;
         }
     }
 
+    /**
+     * Altera um usuário. Compara o usuário que está logado (na instância de LoginMB)
+     * com o usuário que está neste Bean. Valida o email e o cpf caso tenham sido
+     * alterados. Caso a validação ocorra bem, altera o usuário que tá no banco 
+     * de dados e atualiza o que está logado. Caso haja falhas na validação ou 
+     * na persistência dos dados, cria mensagens de erro.
+     */
     public void alterar() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        FacesMessage message;
-        Application app = facesContext.getApplication();
-        LoginMB lmb = (LoginMB) app.evaluateExpressionGet(facesContext, "#{loginMB}",
-                      LoginMB.class);
+        LoginMB lmb = FacesUtil.getLoginMB();
         usuario.setId(lmb.getUsuario().getId());
         Usuario antigo = dao.findUsuario(usuario.getId());
         boolean validouCpf = true;
@@ -100,14 +107,12 @@ public class UsuarioMB {
         }
         
         if(!validouCpf){
-            message = new FacesMessage("Este CPF já existe.");
-            facesContext.addMessage("formAlterar:campoCpf", message);
+            FacesUtil.adicionarMensagem("formAlterar:campoCpf", "Este CPF já existe.");
             return;
         }
         
         if(!validouEmail){
-            message = new FacesMessage("Este email já existe.");
-            facesContext.addMessage("formAlterar:campoEmail", message);
+            FacesUtil.adicionarMensagem("formAlterar:campoEmail", "Este email já existe.");
             return;
         }
         
@@ -118,20 +123,18 @@ public class UsuarioMB {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
-            message = new FacesMessage("Não foi possível salvar as alterações.");
-            facesContext.addMessage("formAlterar", message);
+            FacesUtil.adicionarMensagem("formAlterar", "Não foi possível salvar as alterações.");
         }
     }
     
     /**
      * Desloga o usuário e exclui todos os seus dados do sistema.
+     * @return Retorna o retorno do método deslogar de um objeto LoginMB, caso
+     * dê certo. Retorna null, caso contrário.
      */
     public String excluir() {
         try {
-            FacesContext context = FacesContext.getCurrentInstance();
-            Application app = context.getApplication();
-            LoginMB lmb = (LoginMB) app.evaluateExpressionGet(context, "#{loginMB}",
-                    LoginMB.class);
+            LoginMB lmb = FacesUtil.getLoginMB();
             usuario.setId(lmb.getUsuario().getId());
             dao.destroy(usuario.getId());
             return lmb.deslogar();
@@ -168,7 +171,6 @@ public class UsuarioMB {
 
     /**
      * Valida o código e o email que estão neste Managed Bean.
-     
      * @return true se validar ou false, caso contrário.
      */
     public boolean validarCodigo() {
@@ -176,7 +178,13 @@ public class UsuarioMB {
         String aux2 = gerarCodigo(usuario.getEmail()).toString();
         return aux1.equals(aux2);
     }
-
+    
+    /**
+     * Gera um código a partir de um email informado.
+     * Obs.: o campo codigo deste Bean fica em branco.
+     * @param email o email a partir do qual será criado o código.
+     * @return o código gerado a partir do email.
+     */
     public String gerarCodigo(String email) {
         String aux2 = "";
         codigo = "";
@@ -242,14 +250,22 @@ public class UsuarioMB {
         this.codigo = codigo;
     }
     
+    /**
+     * Valida o email do usuário que está neste Bean.
+     * @return boolean indicando true para válido ou false para inválido.
+     */
     public boolean validarEmail(){
-        /*Usuario u = dao.findUsuarioPorEmail(usuario.getEmail());
+        Usuario u = dao.findUsuarioPorEmail(usuario.getEmail());
         if(u != null){
             return u.getEmail().equals(usuario.getEmail());
-        }*/
+        }
         return true;
     }
     
+    /**
+     * Valida o cpf do usuário que está neste Bean.
+     * @return boolean indicando true para válido ou false para inválido.
+     */
     public boolean validarCpf(){
         /*Usuario u = dao.findUsuarioPorCpf(usuario.getCpf());
         if(u != null){

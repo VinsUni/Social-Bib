@@ -5,13 +5,11 @@
 package beans;
 
 import dao.UsuarioJpaController;
-import javax.el.ELResolver;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import modelo.Usuario;
 import util.EMF;
+import util.FacesUtil;
 
 /**
  *
@@ -46,9 +44,7 @@ public class LoginMB {
         Usuario u = dao.findUsuario(email, senha);
         if (u != null){
             usuario = u;
-            FacesContext c = FacesContext.getCurrentInstance();
-            ELResolver r = c.getApplication().getELResolver();
-            UsuarioMB umb = (UsuarioMB) r.getValue(c.getELContext(), null, "usuarioMB");
+            UsuarioMB umb = FacesUtil.getUsuarioMB();
             umb.setUsuario(usuario);
             return true;
         } else {
@@ -77,10 +73,20 @@ public class LoginMB {
         return logado;
     }
     
+    /**
+     * Coloca a flag logado como true. O método é private para que ninguém possa 
+     * logar o usuário da sessão de forma incorreta. A forma correta é chamar
+     * o método logar() deste Bean.
+     */
     private void setLogado(){
         logado = true;
     }
     
+    /**
+     * Coloca a flag logado como false. O método é private para que ninguém possa 
+     * deslogar o usuário da sessão de forma incorreta. A forma correta é chamar
+     * o método deslogar() deste Bean.
+     */
     private void setDeslogado(){
         logado = false;
     }
@@ -108,9 +114,7 @@ public class LoginMB {
         if (validarLogin()){
             return "principal.xhtml";
         } else {
-            FacesMessage message = new FacesMessage("E-mail ou senha inválida.");
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            facesContext.addMessage("formEntrar", message);
+            FacesUtil.adicionarMensagem("formEntrar", "E-mail ou senha inválida.");
             return null;
         }
     }

@@ -4,18 +4,14 @@
  */
 package beans;
 
-import dao.UsuarioJpaController;
 import java.util.List;
-import modelo.Livro;
-import modelo.Usuario;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.primefaces.event.SelectEvent;
-import util.EMF;
 
 /**
  *
@@ -46,35 +42,27 @@ public class LivroMBTest {
      * Test of inserir method, of class LivroMB.
      */
     @Test
-    public void testInserir() {
-        UsuarioJpaController dao = new UsuarioJpaController(EMF.getEntityManagerFactory());
-        
-        Usuario usuario = new Usuario();
-        usuario.setCpf("084.690.604-06");
-        usuario.setEmail("Teste@gmail.com");
-        usuario.setNome("Teste");
-        usuario.setSenha("123");
-        dao.create(usuario);
-        
+    public void testInserir() {        
         UsuarioMB bean = new UsuarioMB();
-        bean.setUsuario(usuario);
-        
+        bean.setEmailDeCadastro("cassio.ag@gmail.com");
+        bean.setCodigo("01473304956208055761029122410261530174917642015221214402384273728625555");
+        bean.getUsuario().setCpf("024.690.604-06");
+        bean.getUsuario().setEmail("cassio.ag@gmail.com");
+        bean.getUsuario().setNome("Teste");
+        bean.getUsuario().setSenha("123");
+        String s = bean.inserir();
  
         LoginMB login = new LoginMB();
-        login.setEmail("Teste@gmail.com");
+        login.setEmail("cassio.ag@gmail.com");
         login.setSenha("123");
         String logar = login.logar();
         
-        Livro livro = new Livro();
-        livro.setTitulo("Teste");
-        livro.setAutor("Teste");
-        livro.setAno("999");
-        livro.setDono(usuario);
-        livro.setEditora("Teste");
-        livro.setGenero("Teste");        
-        
         LivroMB instance = new LivroMB(); 
-        instance.setLivro(livro);
+        instance.getLivro().setTitulo("Teste");
+        instance.getLivro().setAutor("Teste");
+        instance.getLivro().setAno("999");
+        instance.getLivro().setEditora("Teste");
+        instance.getLivro().setGenero("Teste");
         
         assertNotNull(instance.inserir());
         

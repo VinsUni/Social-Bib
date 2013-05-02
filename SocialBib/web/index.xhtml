@@ -10,8 +10,9 @@
     </h:head>
     <f:view encoding="ISO-8859-1" id="corpo">
         <h1>Social Bib </h1>
+        
         <div id="estrutura">
-            <h:panelGrid id="login" columns="2" border="5">
+            <h:panelGrid id="login" columns="2">
                 <h:form id="formEntrar">
                     <h2>Login</h2>
                     <h:outputText value="E-mail "/>
@@ -32,7 +33,9 @@
                 </h:form>
             </h:panelGrid>
 
-            <h:panelGrid id="cadastrar" columns="2" border="5">
+            <hr  id="linha"/>
+            
+            <h:panelGrid id="cadastrar" columns="2">
                 <h:form id="formPreCadastro">
                     <h2>Cadastre-se</h2>
                     <h:outputText value="E-mail "/>
@@ -42,11 +45,6 @@
                     <p:commandButton ajax="false" value="Cadastre-se" action="#{usuarioMB.enviarCodigo()}"/>
                 </h:form>
             </h:panelGrid>
-            
-            <div id="rodape">
-                &copy;2013 - BSI - Social Bib Corporation
-            </div>
-            
         </div>
     </f:view>
 </html>
