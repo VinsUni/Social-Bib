@@ -111,6 +111,10 @@ public class LivroMB {
         }
     }
     
+    public List<Livro> getLivrosPesquisa(){
+        return dao.findLivro(livro);
+    }
+    
     public List<Livro> getLivros(){
         return dao.findLivroEntities();
         
