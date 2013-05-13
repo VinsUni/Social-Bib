@@ -11,11 +11,19 @@
     </h:head>
     <f:view encoding="ISO-8859-1">
         <h1>Social Bib </h1>
-        
+
+        <p:fieldset legend="Dados da Conta">  
+            <h:panelGrid columns="1">  
+                <p:graphicImage value="/imagens/images.jpg"/>  
+                <h:outputText value="Nome: "/><h:outputText value="#{usuarioMB.usuario.nome}"/>
+                
+            </h:panelGrid>  
+        </p:fieldset>
+
         <h:form id="botaoGerenciarConta">
             <p:commandButton ajax="false" value="Gerenciar Conta" action="conta.xhtml"/>
         </h:form>
-        
+
         <h:form id="botaoCadastraLivro">
             <p:commandButton ajax="false" value="Cadastrar Livro" action="cadastroLivro.xhtml"/>
         </h:form>
