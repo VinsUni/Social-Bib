@@ -23,6 +23,7 @@ public class Livro implements Serializable {
     
     private String isbn;
     
+    
     @Column(nullable=false)
     private String titulo;
 
