@@ -45,7 +45,7 @@
                 <p:inputText id="campoAno" value="#{livroMB.livro.ano}" maxlength="250"/>
 
 
-                <p:commandButton value="Pesquisar" action="#{livroMB.getLivrosPesquisa()}"/>
+                <p:commandButton value="Pesquisar" action="#{livroMB.getLivrosPesquisa()}" update="livros"/>
 
             </h:panelGrid>
 
