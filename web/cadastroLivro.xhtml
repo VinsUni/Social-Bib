@@ -25,6 +25,11 @@ and open the template in the editor.
                 <p:inputText id="campoTitulo" value="#{livroMB.livro.titulo}" required="true" 
                              requiredMessage="O titulo é obrigatório" maxlength="250"/>
 
+                <h:outputText value="ISBN "/>
+                <p:inputMask id="campoIsbn" value="#{livroMB.livro.isbn}" required="true" 
+                             requiredMessage="O ISBN é obrigatório" mask="99-999-9999-9"/>
+
+                
                 <h:outputText value="Autor "/>
                 <p:inputText id="campoAutor" value="#{livroMB.livro.autor}" required="true" 
                              requiredMessage="O autor é obrigatório" maxlength="250"/>
@@ -33,15 +38,27 @@ and open the template in the editor.
                 <p:selectOneMenu value="#{livroMB.livro.genero}" required="true"
                                  requiredMessage="O genero é obrigatório">  
                     <f:selectItem itemLabel="Selecione" itemValue=""/>  
-                    <f:selectItem itemLabel="Romance" itemValue="Romance"/>  
-                    <f:selectItem itemLabel="Dramaturgia" itemValue="Dramaturgia"/>  
-                    <f:selectItem itemLabel="Terror" itemValue="Terror"/>
-                    <f:selectItem itemLabel="Informática" itemValue="Informática"/>
-                    <f:selectItem itemLabel="Geografia" itemValue="Geografia"/>
-                    <f:selectItem itemLabel="História" itemValue="História"/>
-                    <f:selectItem itemLabel="Literatura" itemValue="Literatura"/>
-                    <f:selectItem itemLabel="Ficção" itemValue="Ficção"/>
-                    <f:selectItem itemLabel="Outros" itemValue="Outros"/>
+                    <f:selectItem itemLabel="ROMANCE" itemValue="ROMANCE"/>  
+                    <f:selectItem itemLabel="DRAMATURGIA" itemValue="DRAMATURGIA"/>  
+                    <f:selectItem itemLabel="TERROR" itemValue="TERROR"/>
+                    <f:selectItem itemLabel="INFORMÁTICA" itemValue="INFORMÁTICA"/>
+                    <f:selectItem itemLabel="GEOGRAFIA" itemValue="GEOGRAFIA"/>
+                    <f:selectItem itemLabel="HISTÓRIA" itemValue="INFORMÁTICA"/>
+                    <f:selectItem itemLabel="LITERATURA" itemValue="LITERATURA"/>
+                    <f:selectItem itemLabel="FICÇÃO" itemValue="FICÇÃO"/>
+                    <f:selectItem itemLabel="PSICOLOGIA EDUCACIONAL" itemValue="PSICOLOGIA EDUCACIONAL"/>
+                    <f:selectItem itemLabel="PROJETO EDUCACIONAL" itemValue="PROJETO EDUCACIONAL"/>
+                    <f:selectItem itemLabel="FILOSOFIA DA EDUCAÇÃO" itemValue="FILOSOFIA DA EDUCAÇÃO"/>
+                    <f:selectItem itemLabel="TEORIAS PEDAGÓGICAS" itemValue="TEORIAS PEDAGÓGICAS"/>
+                    <f:selectItem itemLabel="EDUCAÇÃO ESPECIAL" itemValue="EDUCAÇÃO ESPECIAL"/>
+                    <f:selectItem itemLabel="DIDATICA E ENSINO" itemValue="DIDATICA E ENSINO"/>
+                    <f:selectItem itemLabel="POLITICAS EDUCACIONAIS" itemValue="POLITICAS EDUCACIONAIS"/>
+                    <f:selectItem itemLabel="COMUNICAÇÃO E MÍDIA" itemValue="COMUNICAÇÃO E MÍDIA"/>
+                    <f:selectItem itemLabel="METODOLOGIA DE ENSINO" itemValue="METODOLOGIA DE ENSINO"/>
+                    <f:selectItem itemLabel="GESTÃO EDUCACIONAL" itemValue="GESTÃO EDUCACIONAL"/>
+                    <f:selectItem itemLabel="ALFABETIZAÇÃO" itemValue="ALFABETIZAÇÃO"/>
+                    <f:selectItem itemLabel="EDUCAÇÃO INFANTIL" itemValue="EDUCAÇÃO INFANTIL"/>
+                    <f:selectItem itemLabel="OUTROS" itemValue="OUTROS"/>
                     <h:message for="campoGenero"/>
                 </p:selectOneMenu>
 
@@ -78,7 +95,11 @@ and open the template in the editor.
 
                 <f:facet name="header">  
                     Seus Livros  
-                </f:facet>  
+                </f:facet> 
+                
+                <p:column headerText="ISBN" >  
+                    #{livro.isbn}  
+                </p:column>
 
                 <p:column headerText="Título">  
                     #{livro.titulo}  
