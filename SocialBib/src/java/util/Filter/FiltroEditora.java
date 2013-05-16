@@ -20,7 +20,7 @@ public class FiltroEditora implements Filtro {
         if(!sqlBase.endsWith("where")){
             sqlPart += " and";
         }
-        sqlPart += " l.editora =:editora";
+        sqlPart += " l.editora like :editora";
         return sqlPart;
     }
 
