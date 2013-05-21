@@ -16,6 +16,19 @@ and open the template in the editor.
     <f:view encoding="ISO-8859-1">
         <h1>Social Bib </h1>
 
+        <h:form>  
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu> 
+            </p:menubar>  
+
+        </h:form>
+
         <h:form id="formCadastrarLivro">
             <h2>Cadastro de Livros</h2>
 
@@ -29,7 +42,7 @@ and open the template in the editor.
                 <p:inputMask id="campoIsbn" value="#{livroMB.livro.isbn}" required="true" 
                              requiredMessage="O ISBN é obrigatório" mask="99-999-9999-9"/>
 
-                
+
                 <h:outputText value="Autor "/>
                 <p:inputText id="campoAutor" value="#{livroMB.livro.autor}" required="true" 
                              requiredMessage="O autor é obrigatório" maxlength="250"/>
@@ -80,8 +93,21 @@ and open the template in the editor.
         </h:form>
 
         <h:form id="botaoExcluirLivro">
-            <p:commandButton ajax="false" value="Excluir" action="#{livroMB.excluir()}"/>
+            <p:commandButton value="Excluir" onclick="dlg2.show();"/>
         </h:form>
+
+        <p:dialog id="modalDialog" header="Confirmação de Exclusão" widgetVar="dlg2" modal="true" height="150">  
+            <h:outputText value="Você deseja excluir o livro realmente?" /> 
+            <h:panelGrid columns="2" cellspacing="20"> 
+                <h:form>
+                    <p:commandButton ajax="false" value="Sim" action="#{livroMB.excluir()}"/>
+                </h:form>
+                
+                <h:form>
+                    <p:commandButton global="false" process="@this" readonly="true" transient="true" immediate="true" value="Não" style="margin-top: 5px;" onclick="resumoDialog.hide();return false;"/> 
+                </h:form>
+            </h:panelGrid>
+        </p:dialog>
 
         <h:form id="formTabelaLivro" > 
             <p:growl id="growl" showSummary="false" showDetail="true"/>
@@ -96,7 +122,7 @@ and open the template in the editor.
                 <f:facet name="header">  
                     Seus Livros  
                 </f:facet> 
-                
+
                 <p:column headerText="ISBN" >  
                     #{livro.isbn}  
                 </p:column>

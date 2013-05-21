@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <title>Mensagens</title>
+        <link rel="stylesheet" type="text/css" href="indexCss.css"/>
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+    </h:head>
+    <f:view encoding="ISO-8859-1">
+        <h1>Social Bib </h1>
+
+        <h:form>  
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu> 
+
+                <p:submenu label="Livros" icon="ui-icon-document" >   
+                    <p:menuitem value="Cadastro de Livros" ajax="false" action="cadastroLivro.xhtml" icon="ui-icon-circle-plus"/> 
+                    <p:menuitem value="Busca de Livros" ajax="false" icon="ui-icon-search"/>  
+                    <p:separator />  
+                    <p:menuitem value="Meus Livros" action="meusLivros.xhtml" ajax="false" icon="ui-icon-arrowreturnthick-1-e"/>  
+                </p:submenu> 
+            </p:menubar>  
+
+        </h:form>
+        
+        <p:tabView id="tabView">  
+            <p:tab id="tab1" title="Enviar Mensagem">  
+                <h:form>
+                    <h:panelGrid columns="2" cellpadding="10">    
+                        <h:outputText value="Para: " />  
+                        <p:inputText value="#{mensagemMB.mensagem.destinatario}" />
+                        <h:outputText value="Mensagem: " />  
+                        <p:inputTextarea value="#{mensagemMB.mensagem.mensagem}"/>
+                        <p:commandButton value="Enviar" action="#{mensagemMB.enviar()}" ajax="false"/>
+                    </h:panelGrid>  
+                </h:form>
+            </p:tab>  
+
+            <p:tab id="tab2" title="Caixa de Entrada">  
+                <h:panelGrid columns="2" cellpadding="10">  
+                    <h:outputText id="tab2Text" value="Aqui vai as mensagens"/>  
+                </h:panelGrid>  
+            </p:tab>  
+
+            <p:tab id="tab3" title="Todas">  
+                <h:panelGrid columns="2" cellpadding="10">  
+                    <h:outputText id="tab3Text" value="Aqui vai as mensagens"/>  
+                </h:panelGrid>  
+            </p:tab>  
+
+        </p:tabView>
+
+
+    </f:view>
+</html>

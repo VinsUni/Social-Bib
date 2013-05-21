@@ -4,12 +4,15 @@
  */
 package beans;
 
+import dao.LivroJpaController;
 import dao.UsuarioJpaController;
 import dao.exceptions.NonexistentEntityException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import modelo.Livro;
 import modelo.Usuario;
 import org.apache.commons.mail.EmailException;
 import util.EMF;
@@ -61,10 +64,9 @@ public class UsuarioMB {
     public String inserir() {
         if (validarCodigo()) {
             if(!cpfJaExiste()){
-                if(!emailJaExiste()){
+                if(!emailJaExiste(usuario.getEmail())){
                     dao.create(usuario);
-                    /*FacesUtil.adicionarMensagem("Pronto, você se cadastrou!\n"
-                                                + "Agora já pode entrar no sistema.");*/
+                    //FacesUtil.adicionarMensagem("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
                     return "index.xhtml";
                 } else {
                     FacesUtil.adicionarMensagem("formCadastro:campoEmail",
@@ -103,7 +105,7 @@ public class UsuarioMB {
         }
         
         if(!(antigo.getEmail().equals(usuario.getEmail()))){
-            validouEmail = !emailJaExiste();
+            validouEmail = !emailJaExiste(usuario.getEmail());
         }
         
         if(!validouCpf){
@@ -136,7 +138,25 @@ public class UsuarioMB {
         try {
             LoginMB lmb = FacesUtil.getLoginMB();
             usuario.setId(lmb.getUsuario().getId());
+            
+            /*
+             * Primeiro, exclui todos os livros do usuário.
+             */
+            LivroJpaController livroDAO = new LivroJpaController(EMF.getEntityManagerFactory());
+            List<Livro> livros = livroDAO.findLivroEntities(lmb.getUsuario());
+            for(Livro l:livros){
+                livroDAO.destroy(l.getId());
+            }
+            
+            /*
+             * Agora, exclui o usuário.
+             */
             dao.destroy(usuario.getId());
+            
+            /*
+             * Limpa o usuário deste Bean e desloga.
+             */
+            usuario = new Usuario();
             return lmb.deslogar();
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
@@ -150,7 +170,7 @@ public class UsuarioMB {
      * @return Retorna uma página redirecionando automaticamente.
      */
     public String enviarCodigo() {
-        if(!emailJaExiste()){
+        if(!emailJaExiste(emailDeCadastro)){
             String cod = gerarCodigo(emailDeCadastro);
 
             Notificador notificador = new Notificador();
@@ -273,8 +293,8 @@ public class UsuarioMB {
      * Valida o email do usuário que está neste Bean.
      * @return boolean indicando true para válido ou false para inválido.
      */
-    public boolean emailJaExiste(){
-        Usuario u = dao.findUsuarioPorEmail(usuario.getEmail());
+    public boolean emailJaExiste(String email){
+        Usuario u = dao.findUsuarioPorEmail(email);
         return u != null;
     }
     

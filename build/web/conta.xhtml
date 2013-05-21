@@ -5,10 +5,33 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:head>
-        <title>Facelet Title</title>
+        <title>Configurações de conta</title>
+        <link rel="stylesheet" type="text/css" href="indexCss.css"/>
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
     </h:head>
     <f:view encoding="ISO-8859-1">
-        <p:growl id="growl" showSummary="true" showDetail="false"/>
+        <h1>Social Bib </h1>
+
+        <h:form>  
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Livros" icon="ui-icon-document" >   
+                    <p:menuitem value="Cadastro de Livros" ajax="false" action="cadastroLivro.xhtml" icon="ui-icon-circle-plus"/> 
+                    <p:menuitem value="Busca de Livros" ajax="false" icon="ui-icon-search"/>  
+                    <p:separator />  
+                    <p:menuitem value="Meus Livros" action="meusLivros.xhtml" ajax="false" icon="ui-icon-arrowreturnthick-1-e"/>  
+                </p:submenu>  
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu> 
+            </p:menubar>  
+
+        </h:form>
+
         <h:form id="formAlterar">
             <h2>Alteração de dados da conta</h2>
 
@@ -41,13 +64,34 @@
 
                 <p:commandButton ajax="false" value="Alterar dados" action="#{usuarioMB.alterar()}"/>
 
+
             </h:panelGrid>
 
         </h:form>
 
         <h:form id="botaoExcluirConta">
-            <p:commandButton ajax="false" value="Excluir conta" action="#{usuarioMB.excluir()}"/>
+            <p:commandLink value="Excluir Conta" onclick="dce.show();"/>
         </h:form>
+
+        <p:dialog id="dialogConfirmacaoDeExclusao" header="Confirmação de Exclusão"
+                  widgetVar="dce" modal="true" height="150" closeOnEscape="true"
+                  resizable="false" >  
+            <h:outputText value="Você deseja realmente excluir sua conta e todos os seus dados?"/> 
+            <h:panelGrid columns="2" cellspacing="20"> 
+                <h:form id="formConfirmarExclusao">
+                    <p:commandButton ajax="false" value="Excluir conta"
+                                     action="#{usuarioMB.excluir()}" rendered="true"/>
+                </h:form>
+
+                <h:form>
+                    <p:commandButton global="false" process="@this"
+                                     readonly="true" transient="true"
+                                     immediate="true" value="Não"
+                                     style="margin-top: 5px;"
+                                     onclick="resumoDialog.hide();return false;"/> 
+                </h:form>
+            </h:panelGrid>
+        </p:dialog>
     </f:view>
 </html>
 

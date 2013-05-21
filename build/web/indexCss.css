@@ -80,13 +80,19 @@
     
     #formAlterar{
         position: absolute;
-        top: 35%; 
-        right: 45%;
+        top: 28%;
+        right: 33%;
+    }
+    
+    #formPesquisarLivro{
+        position: absolute;
+        top: 28%;
+        right: 33%;
     }
     
     #botaoExcluirConta{
         position: absolute;
-        top: 77%; 
+        top: 90%; 
         right: 46%;
     }
     
@@ -104,7 +110,16 @@
     
     #formTabelaLivro{
         position: absolute;
-        top: 85%; 
+        top: 90%; 
+        right: 0%;
+        left: 0%;
+        bottom: 4%;
+        
+    }
+    
+    #TabelaLivroPesquisa{
+        position: absolute;
+        top: 90%; 
         right: 0%;
         left: 0%;
         bottom: 4%;
@@ -113,6 +128,6 @@
     
     #botaoExcluirLivro{
         position: absolute;
-        top: 71%; 
-        right: 36%; 
+        top: 80%; 
+        right: 39%; 
     }

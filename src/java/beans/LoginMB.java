@@ -121,12 +121,14 @@ public class LoginMB {
     }
     
     /**
-     * Desloga o usuário da sessão (logado = false). Além disso, dá um new no usuário do UsuarioMB
-     e nos campos email e senha do LoginMB.
+     * Desloga o usuário da sessão (logado = false). Além disso, cria uma nova
+     * instância para o usuário do UsuarioMB e para os campos email e senha do LoginMB.
      * @return a página inicial (index.xhtml) aonde será redirecionado automaticamente.
      */
     public String deslogar(){
         setDeslogado();
+        UsuarioMB umb = FacesUtil.getUsuarioMB();
+        umb.setUsuario(new Usuario());
         usuario = new Usuario();
         email = "";        
         senha = "";
