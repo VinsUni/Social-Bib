@@ -10,11 +10,13 @@ import dao.exceptions.NonexistentEntityException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import modelo.Livro;
 import modelo.Usuario;
 import org.apache.commons.mail.EmailException;
+import org.primefaces.event.SelectEvent;
 import util.EMF;
 import util.FacesUtil;
 import util.Notificador;
@@ -314,4 +316,5 @@ public class UsuarioMB {
     private int getConstanteDeCriptografia(){
         return 50;
     }
+     
 }

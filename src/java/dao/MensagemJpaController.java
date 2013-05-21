@@ -11,9 +11,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Mensagem;
+import modelo.Usuario;
 
 /**
  *
@@ -86,6 +88,16 @@ public class MensagemJpaController implements Serializable {
                 em.close();
             }
         }
+    }
+    
+    public List<Mensagem> findMensagemEntities(Usuario usuario){
+        EntityManager em = getEntityManager();
+        TypedQuery<Mensagem> query;
+        
+        query = em.createQuery("select l from Mensagem l where l.destinatario=:id", Mensagem.class);
+        query.setParameter("id", usuario);
+        
+        return query.getResultList();
     }
 
     public List<Mensagem> findMensagemEntities() {

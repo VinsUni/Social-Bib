@@ -35,13 +35,28 @@ and open the template in the editor.
             </p:menubar>  
 
         </h:form>
-        
+
         <p:tabView id="tabView">  
-            <p:tab id="tab1" title="Enviar Mensagem">  
+            <p:tab id="tab1" title="Enviar Mensagem" > 
                 <h:form>
                     <h:panelGrid columns="2" cellpadding="10">    
                         <h:outputText value="Para: " />  
-                        <p:inputText value="#{mensagemMB.mensagem.destinatario}" />
+                        <p:autoComplete value="#{mensagemMB.destinatario}"   
+                                        id="basicPojo" completeMethod="#{mensagemMB.completeUsuario}"  
+                                        var="usuario" itemLabel="#{usuario.nome}" itemValue="#{usuario}" converter="usuarioConverter" forceSelection="true">  
+                            <f:facet name="itemtip">  
+                                <h:panelGrid  columns="2" cellpadding="10">  
+
+                                    <h:outputText value="Nome: " />  
+                                    <h:outputText value="#{usuario.nome}" />  
+
+                                    <h:outputText value="Email: " />  
+                                    <h:outputText value="#{usuario.email}" />  
+
+                                </h:panelGrid>  
+                            </f:facet>
+                        </p:autoComplete>
+
                         <h:outputText value="Mensagem: " />  
                         <p:inputTextarea value="#{mensagemMB.mensagem.mensagem}"/>
                         <p:commandButton value="Enviar" action="#{mensagemMB.enviar()}" ajax="false"/>
@@ -49,10 +64,45 @@ and open the template in the editor.
                 </h:form>
             </p:tab>  
 
-            <p:tab id="tab2" title="Caixa de Entrada">  
-                <h:panelGrid columns="2" cellpadding="10">  
-                    <h:outputText id="tab2Text" value="Aqui vai as mensagens"/>  
-                </h:panelGrid>  
+            <p:tab id="tab2" title="Caixa de Entrada">   
+                <p:dataList value="#{mensagemMB.mensagensDoUsuarioLogado}" var="mensagem" id="cars"  
+                            paginator="true" rows="5"  
+                            paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink} {RowsPerPageDropdown}"  
+                            rowsPerPageTemplate="5,10,15" type="none">
+                    <f:facet name="header">  
+                        Mensagens  
+                    </f:facet>  
+
+                    <p:commandButton icon="ui-icon-search" title="View Detail" update=":tabView:carDetail" oncomplete="carDialog.show()">
+                        <f:setPropertyActionListener value="#{mensagem}" target="#{mensagemMB.mensagem}" />
+                    </p:commandButton>
+
+                    
+
+                    <h:outputText value="#{mensagem.remetente.nome}>> #{mensagem.mensagem}" style="margin-left:10px" /> 
+                    
+                    <p:commandButton icon="ui-icon-search" title="Excluir" action="#{mensagemMB.excluir()}" update=":tabView:cars">
+                        <f:setPropertyActionListener value="#{mensagem}" target="#{mensagemMB.mensagem}" />
+                    </p:commandButton> 
+                    
+                    <p:separator />
+
+                    <br />  
+                </p:dataList> 
+
+                <p:dialog header="Car Detail" widgetVar="carDialog" modal="true" showEffect="fade">  
+                    <p:outputPanel id="carDetail" style="text-align:center;" layout="block">  
+
+                        <h:panelGrid  columns="2" cellpadding="5">  
+                            <h:outputLabel for="modelNo" value="Model No: " />  
+                            <h:outputText id="modelNo" value="#{mensagemMB.mensagem.remetente}" />  
+
+                            <h:outputLabel for="year" value="Year: " />  
+                            <h:outputText id="year" value="#{mensagemMB.mensagem.mensagem}" />  
+
+                        </h:panelGrid>  
+                    </p:outputPanel>  
+                </p:dialog>
             </p:tab>  
 
             <p:tab id="tab3" title="Todas">  

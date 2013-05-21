@@ -5,12 +5,16 @@
 package beans;
 
 import dao.MensagemJpaController;
+import dao.UsuarioJpaController;
 import dao.exceptions.NonexistentEntityException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import modelo.Livro;
 import modelo.Mensagem;
+import modelo.Usuario;
+import org.primefaces.event.SelectEvent;
 import util.EMF;
 import util.FacesUtil;
 
@@ -24,6 +28,7 @@ public class MensagemMB {
 
     private Mensagem mensagem = new Mensagem();
     private MensagemJpaController dao = new MensagemJpaController(EMF.getEntityManagerFactory());
+    private Usuario destinatario = new Usuario();
     
     public MensagemMB(){
     }
@@ -32,11 +37,13 @@ public class MensagemMB {
         LoginMB lmb = FacesUtil.getLoginMB();
 
         mensagem.setRemetente(lmb.getUsuario());
+        mensagem.setDestinatario(getDestinatario());
 
         dao.create(mensagem);
-
+        
         FacesUtil.adicionarMensagem("Mensagem enviada com sucesso para " + getMensagem().getDestinatario().getNome());
-        setMensagem(new Mensagem());
+        mensagem = new Mensagem();
+        destinatario = new Usuario();
     }
 
     public void excluir() throws NonexistentEntityException {
@@ -47,9 +54,21 @@ public class MensagemMB {
 
     public void carregar(Long id) {
     }
+  
+    public List<Usuario> completeUsuario(String query) {  
+        List<Usuario> suggestions = new ArrayList<Usuario>();
+        List<Usuario> usuarios = new ArrayList<Usuario>();
+        usuarios = new UsuarioJpaController(EMF.getEntityManagerFactory()).findUsuarioEntities();
+        for(Usuario u : usuarios) {  
+            if(u.getNome().startsWith(query))  
+                suggestions.add(u);  
+        }  
+          
+        return suggestions;  
+    }
 
-    public List getMensagensDoUsuarioLogado() {
-        return null;
+    public List<Mensagem> getMensagensDoUsuarioLogado() {
+        return dao.findMensagemEntities(FacesUtil.getLoginMB().getUsuario());
 
     }
 
@@ -80,4 +99,22 @@ public class MensagemMB {
     public void setDao(MensagemJpaController dao) {
         this.dao = dao;
     }
+
+    /**
+     * @return the destinatario
+     */
+    public Usuario getDestinatario() {
+        return destinatario;
+    }
+
+    /**
+     * @param destinatario the destinatario to set
+     */
+    public void setDestinatario(Usuario destinatario) {
+        this.destinatario = destinatario;
+    }
+    
+    
+    
+    
 }
