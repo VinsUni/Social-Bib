@@ -21,6 +21,7 @@ autor VARCHAR (50),
 genero VARCHAR (50),
 editora VARCHAR (50),
 ano INT,
+isbn VARCHAR (50),
 
 PRIMARY KEY (codLivro),
 FOREIGN KEY (dono) REFERENCES Usuario (matricula)
