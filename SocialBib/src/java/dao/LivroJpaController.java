@@ -9,11 +9,13 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Livro;
+import modelo.Usuario;
 
 /**
  *
@@ -91,7 +93,22 @@ public class LivroJpaController implements Serializable {
     public List<Livro> findLivroEntities() {
         return findLivroEntities(true, -1, -1);
     }
-
+    
+    /**
+     * Encontra os livros pertencentes a um usuário.
+     * @param usuario o dono dos livros.
+     * @return a lista de livros pertencentes a este @param usuario.
+     */
+    public List<Livro> findLivroEntities(Usuario usuario){
+        EntityManager em = getEntityManager();
+        TypedQuery<Livro> query;
+        
+        query = em.createQuery("select l from Livro l where l.dono=:id", Livro.class);
+        query.setParameter("id", usuario);
+        
+        return query.getResultList();
+    }
+    
     public List<Livro> findLivroEntities(int maxResults, int firstResult) {
         return findLivroEntities(false, maxResults, firstResult);
     }

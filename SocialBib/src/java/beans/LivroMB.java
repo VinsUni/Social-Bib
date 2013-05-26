@@ -7,13 +7,11 @@ package beans;
 import dao.LivroJpaController;
 import dao.exceptions.NonexistentEntityException;
 import java.util.List;
-import javax.faces.application.Application;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import modelo.Livro;
 import util.EMF;
+import util.FacesUtil;
 
 /**
  *
@@ -46,81 +44,86 @@ public class LivroMB {
         this.livro = livro;
     }
 
-    public String inserir() {
-        FacesMessage message;
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        
-        FacesContext context = FacesContext.getCurrentInstance();
-        Application app = context.getApplication();
-        LoginMB lmb = (LoginMB) app.evaluateExpressionGet(context, "#{loginMB}",
-                    LoginMB.class);
+    /**
+     * Insere (cadastra) um novo livro. O dono do livro é preenchido com o usuário
+     * que está na sessão e o livro é gravado no banco de dados. Depois disso, 
+     * o livro deste Bean recebe uma nova instância em branco (new Livro()).
+     */
+    public void inserir() {
+        LoginMB lmb = FacesUtil.getLoginMB();
+
         livro.setDono(lmb.getUsuario());
         livro.setId(null);
         
         dao.create(livro);
+        
         livro = new Livro();
-        message = new FacesMessage("Livro cadastrado com sucesso.");
-        facesContext.addMessage(null, message);
-        return "cadastroLivro.xhtml";
-                
+        
+        FacesUtil.adicionarMensagem("Livro cadastrado com sucesso.");
     }
 
+    /**
+     * Altera um livro. Pega o livro deste Bean e testa se o id é nulo. Caso seja
+     * nulo, é adicionada uma mensagem de erro. Caso contrário, o livro é alterado
+     * no banco de dados e uma mensagem de confirmação é adicionada.
+     */
     public void alterar() {
-        FacesMessage message;
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        
         try {
             if(livro.getId() != null){
                 dao.edit(livro);
-                message = new FacesMessage("Livro alterado: "+livro.getTitulo());
-                facesContext.addMessage("formCadastrarLivro", message);
+                FacesUtil.adicionarMensagem("formCadastrarLivro", "Livro alterado: "
+                        +livro.getTitulo());
                 livro = new Livro();
-                return;
+            } else {
+                FacesUtil.adicionarMensagem("formCadastrarLivro", "Nenhum livro foi "
+                    + "selecionado, por favor clique em um livro para alterá-lo.");
             }
-            message = new FacesMessage("Nenhum livro foi selecionado, por favor"
-                                     + " clique em um livro para altera-lo.");
-            facesContext.addMessage("formCadastrarLivro", message);
         } catch (Exception ex) {
-            message = new FacesMessage("Não foi possível salvar as alterações.");
-            facesContext.addMessage("formCadastrarLivro", message);
+            FacesUtil.adicionarMensagem("formCadastrarLivro", "Não foi possível "
+                    + "salvar as alterações.");
         }
     }
     
-    
-    public String excluir() {
-        FacesMessage message;
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        
+    /**
+     * Exclui um livro. Pega o livro deste Bean e testa se o id é nulo. Caso seja
+     * nulo, é adicionada uma mensagem de erro. Caso contrário, o livro é excluído
+     * do banco de dados.
+     * Na exclusão, pode ser lançada a exceção NonexistentEntityException e, caso
+     * isso ocorra, uma mensagem de erro é adicionada. Caso contário, adiciona-se
+     * uma mensagem de confirmação.
+     */
+    public void excluir() {
         try {
             if(livro.getId() != null){
-                dao.destroy(livro.getId());                
-                message = new FacesMessage("Livro excluído: " + livro.getTitulo());
-                facesContext.addMessage("formCadastrarLivro", message);
+                dao.destroy(livro.getId());
+                FacesUtil.adicionarMensagem("formCadastrarLivro", "Livro excluído: "
+                        + livro.getTitulo());
                 livro = new Livro();
-                return "cadastroLivro.xhtml";
+            } else {
+                FacesUtil.adicionarMensagem("formCadastrarLivro", "Nenhum livro foi "
+                    + "selecionado, por favor clique em um livro para selecioná-lo.");
             }
-            message = new FacesMessage("Nenhum livro foi selecionado, por favor "
-                                     + "clique em um livro para seleciona-lo.");
-            facesContext.addMessage("formCadastrarLivro", message);
-            return null;
-            
         } catch (NonexistentEntityException ex) {
-            message = new FacesMessage("Não foi possível excluir o livro.");
-            facesContext.addMessage("formCadastrarLivro", message);
-            return null;
+            FacesUtil.adicionarMensagem("formCadastrarLivro", "Não foi possível "
+                    + "excluir o livro.");
         }
     }
     
-    public List<Livro> getLivros(){
-        return dao.findLivroEntities();
-        
-    }
-    
+    /**
+     * Instancia (set) o livro deste Bean com um livro vindo do banco de dados.
+     * Instancia o livro deste Bean com o resultado de uma busca no banco de dados
+     * pelo id do livro.
+     * @param id o id do livro a ser encontrado.
+     */
     public void carregar(Long id){
         livro = dao.findLivro(id);
-        
-        FacesMessage msg = new FacesMessage("Livro Selected" + livro.getTitulo());
-        FacesContext.getCurrentInstance().addMessage(null, msg);
     }     
     
+    /**
+     * Pega todos os livros do usuário logado.
+     * @return os livros do usuário logado.
+     */
+    public List<Livro> getLivrosDoUsuarioLogado(){
+        return dao.findLivroEntities(FacesUtil.getLoginMB().getUsuario());
+    }
 }

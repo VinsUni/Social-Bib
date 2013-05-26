@@ -5,12 +5,11 @@
 package modelo;
 
 import java.io.Serializable;
-import java.util.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 /**
  *
@@ -23,12 +22,16 @@ public class Usuario implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     
+    @Column(nullable=false)
     private String nome;
-
+    
+    @Column(unique=true, nullable=false)
     private String cpf;
     
+    @Column(unique=true, nullable=false)
     private String email;
     
+    @Column(nullable=false)
     private String senha;
 
     public Long getId() {

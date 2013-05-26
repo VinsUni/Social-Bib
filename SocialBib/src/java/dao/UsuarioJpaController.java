@@ -154,11 +154,12 @@ public class UsuarioJpaController implements Serializable {
     public Usuario findUsuarioPorEmail(String email) {
         EntityManager em = getEntityManager();
         TypedQuery<Usuario> query;
-        query = em.createQuery("select u from Usuario u where u.email=:email",
+        query = em.createQuery("select u from Usuario u where u.email = :email",
                                Usuario.class);
         query.setParameter("email", email);
         try{
-            return query.getSingleResult();
+            Usuario u = query.getSingleResult();
+            return u;
         }catch(NoResultException e){
             return null;
         }
@@ -170,6 +171,19 @@ public class UsuarioJpaController implements Serializable {
         query = em.createQuery("select u from Usuario u where u.cpf=:cpf",
                                Usuario.class);
         query.setParameter("cpf", cpf);
+        try{
+            return query.getSingleResult();
+        }catch(NoResultException e){
+            return null;
+        }
+    }
+
+    public Usuario buscaPorNome(String nome) {
+        EntityManager em = getEntityManager();
+        TypedQuery<Usuario> query;
+        query = em.createQuery("select u from Usuario u where u.nome=:nome",
+                               Usuario.class);
+        query.setParameter("nome", nome);
         try{
             return query.getSingleResult();
         }catch(NoResultException e){

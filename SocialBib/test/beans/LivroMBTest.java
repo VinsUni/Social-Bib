@@ -4,14 +4,19 @@
  */
 package beans;
 
-import java.util.List;
+import dao.LivroJpaController;
+import javax.faces.application.Application;
+import javax.faces.context.FacesContext;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.primefaces.event.SelectEvent;
+import static org.mockito.Mockito.mock; 
+import static org.mockito.Mockito.when;
+import util.EMF;
+import util.FacesUtil;
 
 /**
  *
@@ -22,8 +27,36 @@ public class LivroMBTest {
     public LivroMBTest() {
     }
     
+    
+    
     @BeforeClass
     public static void setUpClass() {
+        //instanciando um usuario e persistindo o mesmo no banco de dados
+        UsuarioMB bean = new UsuarioMB();
+        bean.setEmailDeCadastro("cassio.ag@gmail.com");
+        bean.setCodigo("01473304956208055761029122410261530174917642015221214402384273728625555");
+        bean.getUsuario().setCpf("024.690.604-06");
+        bean.getUsuario().setEmail("cassio.ag@gmail.com");
+        bean.getUsuario().setNome("Teste");
+        bean.getUsuario().setSenha("123");
+        String s = bean.inserir();
+        //chamadas do Mockito
+        FacesContext context = ContextMocker.mockFacesContext () ; 
+
+        Application ext = mock (Application. class ) ; 
+        UsuarioMB mb = new UsuarioMB();
+        LoginMB l = new LoginMB();
+          
+        when(context.getApplication()).thenReturn (ext);
+        when(ext.evaluateExpressionGet(context, "#{usuarioMB}", UsuarioMB.class)).thenReturn (mb);
+        when(ext.evaluateExpressionGet(context, "#{loginMB}", LoginMB.class)).thenReturn (l);
+        
+        
+        //Fazendo login do usuario ficticio no sistema
+        l.setEmail("cassio.ag@gmail.com");
+        l.setSenha("123");
+        String logar = l.logar();
+              
     }
     
     @AfterClass
@@ -42,29 +75,18 @@ public class LivroMBTest {
      * Test of inserir method, of class LivroMB.
      */
     @Test
-    public void testInserir() {        
-        UsuarioMB bean = new UsuarioMB();
-        bean.setEmailDeCadastro("cassio.ag@gmail.com");
-        bean.setCodigo("01473304956208055761029122410261530174917642015221214402384273728625555");
-        bean.getUsuario().setCpf("024.690.604-06");
-        bean.getUsuario().setEmail("cassio.ag@gmail.com");
-        bean.getUsuario().setNome("Teste");
-        bean.getUsuario().setSenha("123");
-        String s = bean.inserir();
- 
-        LoginMB login = new LoginMB();
-        login.setEmail("cassio.ag@gmail.com");
-        login.setSenha("123");
-        String logar = login.logar();
-        
+    public void testInserir() {   
+                 
         LivroMB instance = new LivroMB(); 
-        instance.getLivro().setTitulo("Teste");
-        instance.getLivro().setAutor("Teste");
+        instance.getLivro().setTitulo("Teste Inserir");
+        instance.getLivro().setAutor("Teste Inserir");
         instance.getLivro().setAno("999");
-        instance.getLivro().setEditora("Teste");
-        instance.getLivro().setGenero("Teste");
+        instance.getLivro().setEditora("Teste Inserir");
+        instance.getLivro().setGenero("Teste Inserir");
+        instance.inserir();
         
-        assertNotNull(instance.inserir());
+        LivroJpaController dao = new LivroJpaController(EMF.getEntityManagerFactory());
+        assertNotNull(dao.findLivroEntities(FacesUtil.getLoginMB().getUsuario()));
         
     }
 
@@ -73,6 +95,20 @@ public class LivroMBTest {
      */
     @Test
     public void testAlterar() {
+        LivroMB instance = new LivroMB(); 
+        instance.getLivro().setTitulo("Teste Alterar");
+        instance.getLivro().setAutor("Teste Alterar");
+        instance.getLivro().setAno("999");
+        instance.getLivro().setEditora("Teste Alterar");
+        instance.getLivro().setGenero("Teste Alterar");
+        instance.inserir();
+        
+        instance.carregar(Long.valueOf (3));
+        String tituloAntigo = instance.getLivro().getTitulo();
+        instance.getLivro().setTitulo("testeAlterar");
+        instance.alterar();
+        instance.carregar(Long.valueOf (3));
+        assertNotSame(tituloAntigo, instance.getLivro().getTitulo());
         
     }
 
@@ -81,33 +117,20 @@ public class LivroMBTest {
      */
     @Test
     public void testExcluir() {
+        LivroMB instance = new LivroMB(); 
+        instance.getLivro().setTitulo("Teste Excluir");
+        instance.getLivro().setAutor("Teste Excluir");
+        instance.getLivro().setAno("999");
+        instance.getLivro().setEditora("Teste Excluir");
+        instance.getLivro().setGenero("Teste Excluir");
+        instance.inserir();
         
+        instance.carregar(Long.valueOf (4));
+        instance.excluir();
+        
+        LivroJpaController livro = new  LivroJpaController(EMF.getEntityManagerFactory());
+        
+        assertNull(livro.findLivro(Long.valueOf(4)));
     }
 
-    /**
-     * Test of getLivros method, of class LivroMB.
-     */
-    @Test
-    public void testGetLivros() {
-        System.out.println("getLivros");
-        LivroMB instance = new LivroMB();
-        List expResult = null;
-        List result = instance.getLivros();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of carregar method, of class LivroMB.
-     */
-    @Test
-    public void testCarregar() {
-        System.out.println("carregar");
-        SelectEvent event = null;
-        LivroMB instance = new LivroMB();
-        //instance.carregar(event);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 }

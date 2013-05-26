@@ -2,6 +2,7 @@
 package modelo;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,6 +21,10 @@ public class Livro implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     
+    private String isbn;
+    
+    
+    @Column(nullable=false)
     private String titulo;
 
     private String autor;
@@ -169,6 +174,20 @@ public class Livro implements Serializable {
     @Override
     public String toString() {
         return "modelo.Livro[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the isbn
+     */
+    public String getIsbn() {
+        return isbn;
+    }
+
+    /**
+     * @param isbn the isbn to set
+     */
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
     
 }

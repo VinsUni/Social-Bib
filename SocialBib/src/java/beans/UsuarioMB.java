@@ -4,14 +4,19 @@
  */
 package beans;
 
+import dao.LivroJpaController;
 import dao.UsuarioJpaController;
 import dao.exceptions.NonexistentEntityException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
+import modelo.Livro;
 import modelo.Usuario;
 import org.apache.commons.mail.EmailException;
+import org.primefaces.event.SelectEvent;
 import util.EMF;
 import util.FacesUtil;
 import util.Notificador;
@@ -21,7 +26,7 @@ import util.Notificador;
  * @author ciro
  */
 @ManagedBean
-@RequestScoped
+@SessionScoped
 public class UsuarioMB {
 
     private Usuario usuario = new Usuario();
@@ -60,11 +65,10 @@ public class UsuarioMB {
      */
     public String inserir() {
         if (validarCodigo()) {
-            if(validarCpf()){
-                if(validarEmail()){
+            if(!cpfJaExiste()){
+                if(!emailJaExiste(usuario.getEmail())){
                     dao.create(usuario);
-                    FacesUtil.adicionarMensagem(null, "Pronto, você se cadastrou!"
-                                                + "Agora já pode entrar no sistema.");
+                    //FacesUtil.adicionarMensagem("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
                     return "index.xhtml";
                 } else {
                     FacesUtil.adicionarMensagem("formCadastro:campoEmail",
@@ -76,10 +80,10 @@ public class UsuarioMB {
                 return null;
             }
         } else {
-            FacesUtil.adicionarMensagem("O código ou o e-mail está errado.",
-                    "formCadastro:campoCodigo");
-            FacesUtil.adicionarMensagem("O código ou o e-mail está errado.",
-                    "formCadastro:campoEmail");
+            FacesUtil.adicionarMensagem("formCadastro:campoCodigo",
+                    "O código ou o e-mail está errado.");
+            FacesUtil.adicionarMensagem("formCadastro:campoEmail",
+                    "O código ou o e-mail está errado.");
             return null;
         }
     }
@@ -99,11 +103,11 @@ public class UsuarioMB {
         boolean validouEmail = true;
         
         if(!(antigo.getCpf().equals(usuario.getCpf()))){
-            validouCpf = validarCpf();
+            validouCpf = !cpfJaExiste();
         }
         
         if(!(antigo.getEmail().equals(usuario.getEmail()))){
-            validouEmail = validarEmail();
+            validouEmail = !emailJaExiste(usuario.getEmail());
         }
         
         if(!validouCpf){
@@ -136,7 +140,25 @@ public class UsuarioMB {
         try {
             LoginMB lmb = FacesUtil.getLoginMB();
             usuario.setId(lmb.getUsuario().getId());
+            
+            /*
+             * Primeiro, exclui todos os livros do usuário.
+             */
+            LivroJpaController livroDAO = new LivroJpaController(EMF.getEntityManagerFactory());
+            List<Livro> livros = livroDAO.findLivroEntities(lmb.getUsuario());
+            for(Livro l:livros){
+                livroDAO.destroy(l.getId());
+            }
+            
+            /*
+             * Agora, exclui o usuário.
+             */
             dao.destroy(usuario.getId());
+            
+            /*
+             * Limpa o usuário deste Bean e desloga.
+             */
+            usuario = new Usuario();
             return lmb.deslogar();
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
@@ -150,23 +172,28 @@ public class UsuarioMB {
      * @return Retorna uma página redirecionando automaticamente.
      */
     public String enviarCodigo() {
-        codigo = gerarCodigo(emailDeCadastro);
+        if(!emailJaExiste(emailDeCadastro)){
+            String cod = gerarCodigo(emailDeCadastro);
 
-        Notificador notificador = new Notificador();
-        try {
-            notificador.enviarMensagem(emailDeCadastro, "Cadastro no Social Bib",
-                    "Olá!\n\n"
-                    + "Você deu o primeiro passo para o cadastro no Social Bib.\n"
-                    + "Agora, informe o código abaixo e no formulário de cadastro.\n\n"
-                    + codigo
-                    + "\n\nObrigado por utilizar nossos serviços.");
-        } catch (EmailException ex) {
-            Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
+            Notificador notificador = new Notificador();
+            try {
+                notificador.enviarMensagem(emailDeCadastro, "Cadastro no Social Bib",
+                        "Olá!\n\n"
+                        + "Você deu o primeiro passo para o cadastro no Social Bib.\n"
+                        + "Agora, acesse este endereço"
+                        + "<---COLOCAR ENDEREÇO AQUI--->"
+                        + " e informe o código abaixo no formulário de cadastro.\n\n"
+                        + cod
+                        + "\n\nObrigado por utilizar nossos serviços.");
+                emailDeCadastro = "";
+            } catch (EmailException ex) {
+                Logger.getLogger(UsuarioMB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return "cadastro.xhtml";
+        } else {
+            FacesUtil.adicionarMensagem("Este email já existe.");
+            return null;
         }
-
-        codigo = "";
-        
-        return "cadastro.xhtml";
     }
 
     /**
@@ -174,50 +201,64 @@ public class UsuarioMB {
      * @return true se validar ou false, caso contrário.
      */
     public boolean validarCodigo() {
-        String aux1 = codigo.toString();
-        String aux2 = gerarCodigo(usuario.getEmail()).toString();
-        return aux1.equals(aux2);
+        return codigo.equals(gerarCodigo(usuario.getEmail()));
     }
     
     /**
      * Gera um código a partir de um email informado.
-     * Obs.: o campo codigo deste Bean fica em branco.
+     * O código gerado usa uma espécie de criptografia extremamente simples, uma
+     * vez que nós (desenvolvedores do projeto) não sabemos criptografia.
      * @param email o email a partir do qual será criado o código.
-     * @return o código gerado a partir do email.
+     * @return o código gerado a partir do @param email.
      */
     public String gerarCodigo(String email) {
-        String aux2 = "";
-        codigo = "";
+        String aux2 = "", retorno = "";
+        /*
+         * v1 e v2 são dois dígitos adicionados ao final do código.
+         * aux serve para calcular esses dígitos.
+         */
+        int v1 = 0, v2 = 0, aux = 0;
 
-        int i = 0, v1 = 0, v2 = 0, aux = 0;
-
-        for (i = 0; i < email.length(); i++) {
-            aux += (int) email.charAt(i) * i;
-            setCodigo(getCodigo() + ((int) email.charAt(i) + 50) * i); // + 50 pra "criptografar"
+        /*
+         * Esse cálculo é semelhante ao do CPF. Para cada letra do email, seu valor
+         * é somado à constante de criptografia e multiplicado pelo índice i.
+         */
+        for (int i = 0; i < email.length(); i++) {
+            retorno = retorno + (((int) email.charAt(i) + getConstanteDeCriptografia()) * i);
         }
-
-        v1 = aux % (email.length() + 2); // +2 faz parte do calculo
+        
+        /*
+         * Calculando o primeiro dígito a ser adicionado no final do código.
+         */
+        aux = 0;
+        for (int i = 0; i < email.length(); i++) {
+            aux += (int) email.charAt(i) * i;
+        }
+        
+        v1 = aux % (email.length() + 2); // +2 faz parte do cálculo
         if (v1 < 2) {
             v1 = 0;
         } else {
-            v1 = email.length() + 1 - v1;
+            v1 = email.length() + 1 - v1; // +1 faz parte do cálculo
         }
-        setCodigo(getCodigo() + (v1 + 50));
+        retorno = retorno + (v1 + getConstanteDeCriptografia()); // adicionando o primeiro dígito
 
+        /*
+         * Calculando o primeiro dígito a ser adicionado no final do código
+         * (é semelhante ao primeiro).
+         */
         aux = 0;
-        for (i = 0; i < email.length(); i++) {
+        for (int i = 0; i < email.length(); i++) {
             aux += (int) (email.charAt(i) * i);
         }
-        v2 = aux % (email.length() + 2); // +2 faz parte do calculo
+        
+        v2 = aux % (email.length() + 2); // +2 faz parte do cálculo
         if (v2 < 2) {
             v2 = 0;
         } else {
-            v2 = email.length() + 1 - v2;
+            v2 = email.length() + 1 - v2; // +1 faz parte do cálculo
         }
-        setCodigo(getCodigo() + (v2 + 50));
-
-        String retorno = codigo.toString();
-        codigo = "";
+        retorno = retorno + (v2 + getConstanteDeCriptografia()); // adicionando o segundo dígito
 
         return retorno;
     }
@@ -254,23 +295,26 @@ public class UsuarioMB {
      * Valida o email do usuário que está neste Bean.
      * @return boolean indicando true para válido ou false para inválido.
      */
-    public boolean validarEmail(){
-        Usuario u = dao.findUsuarioPorEmail(usuario.getEmail());
-        if(u != null){
-            return u.getEmail().equals(usuario.getEmail());
-        }
-        return true;
+    public boolean emailJaExiste(String email){
+        Usuario u = dao.findUsuarioPorEmail(email);
+        return u != null;
     }
     
     /**
      * Valida o cpf do usuário que está neste Bean.
      * @return boolean indicando true para válido ou false para inválido.
      */
-    public boolean validarCpf(){
-        /*Usuario u = dao.findUsuarioPorCpf(usuario.getCpf());
-        if(u != null){
-            return u.getCpf().equals(usuario.getCpf());
-        }*/
-        return true;
+    public boolean cpfJaExiste(){
+        Usuario u = dao.findUsuarioPorCpf(usuario.getCpf());
+        return u != null;
     }
+    
+    /**
+     * Retorna a constante de "criptografia" usada para gerar código a partir de email.
+     * @return a constante.
+     */
+    private int getConstanteDeCriptografia(){
+        return 50;
+    }
+     
 }
