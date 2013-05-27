@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <h:head>
+        <title>Meus Livros</title>
+        <link rel="stylesheet" type="text/css" href="indexCss.css"/>
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+    </h:head>
+    <f:view encoding="ISO-8859-1">
+        <h1>Social Bib </h1>
+
+        <h:form>  
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Livros" icon="ui-icon-document" >   
+                    <p:menuitem value="Cadastro de Livros" ajax="false" action="cadastroLivro.xhtml" icon="ui-icon-circle-plus"/> 
+                    <p:menuitem value="Busca de Livros" ajax="false" icon="ui-icon-search"/>  
+                    <p:separator />  
+                    <p:menuitem value="Meus Livros" action="meusLivros.xhtml" ajax="false" icon="ui-icon-arrowreturnthick-1-e"/>  
+                </p:submenu> 
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu> 
+            </p:menubar>  
+
+        </h:form>
+
+        <h:form id="formTabelaMeusLivros" > 
+            <p:growl id="growl" showSummary="false" showDetail="true"/>
+
+            <p:dataTable id="livros" var="livro" value="#{livroMB.livrosDoUsuarioLogado}" rowKey="#{livro}"
+                         selection="#" selectionMode="single"
+                         emptyMessage="Você não cadastrou nenhum livro." >
+
+                <f:facet name="header">  
+                    Seus Livros  
+                </f:facet> 
+
+                <p:column headerText="ISBN" >  
+                    #{livro.isbn}  
+                </p:column>
+
+                <p:column headerText="Título">  
+                    #{livro.titulo}  
+                </p:column>  
+
+                <p:column headerText="Autor">  
+                    #{livro.autor}  
+                </p:column>  
+
+                <p:column headerText="Gênero" >  
+                    #{livro.genero}  
+                </p:column>  
+
+                <p:column headerText="Editora">  
+                    #{livro.editora}  
+                </p:column>
+
+                <p:column headerText="Ano">  
+                    #{livro.ano}  
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </f:view>
+</html>
