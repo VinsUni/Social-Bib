@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <title>Mensagens</title>
+        <link rel="stylesheet" type="text/css" href="indexCss.css"/>
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+    </h:head>
+    <f:view encoding="ISO-8859-1">
+        <h1>Social Bib </h1>
+
+        <h:form>  
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu> 
+
+                <p:submenu label="Livros" icon="ui-icon-document" >   
+                    <p:menuitem value="Cadastro de Livros" ajax="false" action="cadastroLivro.xhtml" icon="ui-icon-circle-plus"/> 
+                    <p:menuitem value="Busca de Livros" ajax="false" icon="ui-icon-search"/>  
+                    <p:separator />  
+                    <p:menuitem value="Meus Livros" action="meusLivros.xhtml" ajax="false" icon="ui-icon-arrowreturnthick-1-e"/>  
+                </p:submenu> 
+
+
+            </p:menubar>  
+
+        </h:form>
+
+        <p:tabView id="tabView">  
+            <p:tab id="tab1" title="Enviar Mensagem" > 
+                <h:form id="form1">
+                    <h:panelGrid columns="2" cellpadding="10">    
+                        <h:outputText value="Para: " />  
+                        <p:autoComplete value="#{mensagemMB.destinatario}"   
+                                        id="basicPojo" completeMethod="#{mensagemMB.completeUsuario}"  
+                                        var="usuario" itemLabel="#{usuario.nome}" itemValue="#{usuario}" 
+                                        converter="usuarioConverter" forceSelection="true">  
+                            <f:facet name="itemtip">  
+                                <h:panelGrid  columns="2" cellpadding="10">  
+
+                                    <h:outputText value="Nome: " />  
+                                    <h:outputText value="#{usuario.nome}" />  
+
+                                    <h:outputText value="Email: " />  
+                                    <h:outputText value="#{usuario.email}" />  
+
+                                </h:panelGrid>  
+                            </f:facet>
+                        </p:autoComplete>
+
+                        <h:outputText value="Assunto: " />  
+                        <p:inputText value="#{mensagemMB.mensagem.assunto}"/>
+
+                        <h:outputText value="Mensagem: " />  
+                        <p:inputTextarea value="#{mensagemMB.mensagem.mensagem}"/>
+                        <p:commandButton value="Enviar" action="#{mensagemMB.enviar()}" ajax="false"/>
+                    </h:panelGrid>  
+                </h:form>
+            </p:tab>  
+
+            <p:tab id="tab2" title="Caixa de Entrada"> 
+                <h:form id="formTab">    
+                    <p:dataTable id="cars" var="mensagem" value="#{mensagemMB.mensagensDoUsuarioLogado}">  
+
+                        <p:column headerText="Remetente" style="width:24%">  
+                            <h:outputText value="#{mensagem.remetente.nome}" />  
+                        </p:column>  
+
+                        <p:column headerText="Assunto" style="width:24%">  
+                            <h:outputText value="#{mensagem.assunto}" />  
+                        </p:column>  
+
+                        <p:column headerText="Mensagem" style="width:24%">  
+                            <h:outputText value="#{mensagem.pedacoMensagem}" />  
+                        </p:column>  
+
+                        <p:column headerText="Data" style="width:24%">  
+                            <h:outputText value="#{mensagem.dataFormatada}" />  
+                        </p:column>  
+
+                        <p:column style="width:4%" headerText="Ação">  
+                            <p:commandButton id="selectButton" update=":tabView:modalDialog" action="#{mensagemMB.ler()}" oncomplete="dlg2.show()" icon="ui-icon-search" title="View">  
+                                <f:setPropertyActionListener value="#{mensagem}" target="#{mensagemMB.mensagem}"/>
+                            </p:commandButton>  
+                            
+                            <p:commandButton id="selectButtonExcluir2" update=":tabView:formTab:cars" action="#{mensagemMB.excluir()}" icon="ui-icon-closethick" title="Excluir">  
+                                <f:setPropertyActionListener value="#{mensagem}" target="#{mensagemMB.mensagem}"/>
+                            </p:commandButton> 
+                        </p:column>  
+
+                    </p:dataTable>
+
+                </h:form>
+
+                <p:dialog id="modalDialog" header="Mensagem" widgetVar="dlg2" modal="true">  
+
+                    <h:outputText value="#{mensagemMB.mensagem.assunto}" /> 
+                    <br/>
+                    <br/>
+                    <h:outputText value="#{mensagemMB.mensagem.mensagem}" />
+                    <br/>
+                    <br/>
+                    <h:outputText value="#{mensagemMB.mensagem.remetente.nome}" />
+                    <br/>
+                    <br/>
+                    <h:panelGrid id="dialog" columns="2" cellspacing="20"> 
+                        <h:form>
+                            <p:commandButton ajax="false" value="Excluir" action="#{mensagemMB.excluir()}"/>
+                        </h:form>
+
+                        <h:form>
+                            <p:commandButton update=":tabView:form1" action="#{mensagemMB.onRowUnselect()}" 
+                                             global="false" process="@this" readonly="true" transient="true" 
+                                             immediate="true" value="Voltar" style="margin-top: 5px;" 
+                                             onclick="resumoDialog.hide();return false;"/> 
+                        </h:form>
+                    </h:panelGrid>
+                </p:dialog>
+
+
+            </p:tab>
+            
+            <p:tab id="tab3" title="Mensagens Lidas"> 
+                <h:form id="formTab2">    
+                    <p:dataTable id="cars2" var="mensagem" value="#{mensagemMB.mensagensDoUsuarioLogadoLidas}">  
+
+                        <p:column headerText="Remetente" style="width:24%">  
+                            <h:outputText value="#{mensagem.remetente.nome}" />  
+                        </p:column>  
+
+                        <p:column headerText="Assunto" style="width:24%">  
+                            <h:outputText value="#{mensagem.assunto}" />  
+                        </p:column>  
+
+                        <p:column headerText="Mensagem" style="width:24%">  
+                            <h:outputText value="#{mensagem.pedacoMensagem}" />  
+                        </p:column>  
+
+                        <p:column headerText="Data" style="width:24%">  
+                            <h:outputText value="#{mensagem.dataFormatada}" />  
+                        </p:column>  
+
+                        <p:column style="width:4%" headerText="Ação">  
+                            <p:commandButton id="selectButton" update=":tabView:modalDialog2" oncomplete="dlg3.show()" icon="ui-icon-search" title="View">  
+                                <f:setPropertyActionListener value="#{mensagem}" target="#{mensagemMB.mensagem}"/>
+                            </p:commandButton> 
+                            
+                            <p:commandButton id="selectButtonExcluir" update=":tabView:formTab2:cars2" action="#{mensagemMB.excluir()}" icon="ui-icon-closethick" title="Excluir">  
+                                <f:setPropertyActionListener value="#{mensagem}" target="#{mensagemMB.mensagem}"/>
+                            </p:commandButton> 
+                        </p:column>  
+
+                    </p:dataTable>
+
+                </h:form>
+
+                <p:dialog id="modalDialog2" header="Mensagem" widgetVar="dlg3" modal="true">  
+
+                    <h:outputText value="#{mensagemMB.mensagem.assunto}" /> 
+                    <br/>
+                    <br/>
+                    <h:outputText value="#{mensagemMB.mensagem.mensagem}" />
+                    <br/>
+                    <br/>
+                    <h:outputText value="#{mensagemMB.mensagem.remetente.nome}" />
+                    <br/>
+                    <br/>
+                    <h:panelGrid id="dialog2" columns="2" cellspacing="20"> 
+                        <h:form>
+                            <p:commandButton ajax="false" value="Excluir" action="#{mensagemMB.excluir()}"/>
+                        </h:form>
+
+                        <h:form>
+                            <p:commandButton update=":tabView:form1" action="#{mensagemMB.onRowUnselect()}" 
+                                             global="false" process="@this" readonly="true" transient="true" 
+                                             immediate="true" value="Voltar" style="margin-top: 5px;" 
+                                             onclick="resumoDialog.hide();return false;"/> 
+                        </h:form>
+                    </h:panelGrid>
+                </p:dialog>
+
+
+            </p:tab>
+
+        </p:tabView>
+    </f:view>
+</html>

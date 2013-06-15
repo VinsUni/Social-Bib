@@ -94,12 +94,12 @@ public class MensagemJpaController implements Serializable {
         EntityManager em = getEntityManager();
         TypedQuery<Mensagem> query;
         
-        query = em.createQuery("select l from Mensagem l where l.destinatario=:id ORDER BY l.data DESC;", Mensagem.class);
+        query = em.createQuery("select l from Mensagem l where l.destinatario=:id", Mensagem.class);
         query.setParameter("id", usuario);
         
         return query.getResultList();
     }
-    
+
     public List<Mensagem> findMensagemEntities() {
         return findMensagemEntities(true, -1, -1);
     }

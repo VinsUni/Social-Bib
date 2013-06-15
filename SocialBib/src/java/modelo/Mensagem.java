@@ -5,7 +5,6 @@
 package modelo;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -107,13 +106,6 @@ public class Mensagem implements Serializable {
     public String getMensagem() {
         return mensagem;
     }
-    
-    public String getPedacoMensagem(){
-        if(mensagem.length() > 30){
-            return mensagem.substring(0,35)+"...";// informa que devera exibir apenas 35 caracteres incruindo os espaços.  
-        }
-        return mensagem;
-    }
 
     /**
      * @param mensagem the mensagem to set
@@ -139,7 +131,7 @@ public class Mensagem implements Serializable {
     /**
      * @return the isLida
      */
-    public boolean getIsIsLida() {
+    public boolean isIsLida() {
         return isLida;
     }
 
@@ -163,9 +155,5 @@ public class Mensagem implements Serializable {
     public void setAssunto(String assunto) {
         this.assunto = assunto;
     }
-    
-    public String getDataFormatada(){
-        SimpleDateFormat formatador1 = new SimpleDateFormat("dd/MM/yyyy");
-        return formatador1.format(data);
-    }
+
 }

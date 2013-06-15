@@ -7,15 +7,18 @@ package beans;
 import dao.MensagemJpaController;
 import dao.UsuarioJpaController;
 import dao.exceptions.NonexistentEntityException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import modelo.Livro;
 import modelo.Mensagem;
 import modelo.Usuario;
 import org.apache.commons.mail.EmailException;
 import org.primefaces.event.SelectEvent;
+import org.primefaces.event.UnselectEvent;
 import util.EMF;
 import util.FacesUtil;
 import util.MensagemDataModel;
@@ -33,52 +36,42 @@ public class MensagemMB {
     private MensagemJpaController dao = new MensagemJpaController(EMF.getEntityManagerFactory());
     private Usuario destinatario = new Usuario();
     private Notificador notificador = new Notificador();
-    private MensagemDataModel mediumMensagensModel;
-    private MensagemDataModel mediumMensagensModelLidas;
+    private MensagemDataModel model;
     
     public MensagemMB(){
-        mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
-        mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());  
+        model = new MensagemDataModel(getMensagensDoUsuarioLogado());
     }
 
     public void enviar() throws EmailException {
-        if(getDestinatario() != null){
-            LoginMB lmb = FacesUtil.getLoginMB();
-            mensagem.setRemetente(lmb.getUsuario());
-            mensagem.setDestinatario(getDestinatario());
-            mensagem.setData(new Date());
+        LoginMB lmb = FacesUtil.getLoginMB();
+       
+        mensagem.setRemetente(lmb.getUsuario());
+        mensagem.setDestinatario(getDestinatario());
+        mensagem.setData(new Date());
 
-            dao.create(mensagem);
-
-            getNotificador().enviarMensagem(mensagem.getDestinatario().getEmail(), 
-                    "Nova mensagem de "+mensagem.getRemetente().getNome(), 
-                    "Você recebeu uma nova mensagem de "+mensagem.getRemetente().getNome()+"."+
-                    "\n"+
-                    "\n"+
-                    "\n"+
-                    mensagem.getMensagem());
-            mensagem = new Mensagem();
-            destinatario = new Usuario();
-
-            FacesUtil.adicionarMensagem("Mensagem enviada com sucesso.");
-            mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
-            mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());
-        }else{
-            FacesUtil.adicionarMensagem("A mensagem precisa de um destinatário para ser enviada.");
-        }
+        dao.create(mensagem);
+        
+        getNotificador().enviarMensagem(mensagem.getDestinatario().getEmail(), 
+                "Nova mensagem de "+mensagem.getRemetente().getNome(), 
+                "Você recebeu uma nova mensagem de "+mensagem.getRemetente().getNome()+"."+
+                "\n"+
+                "\n"+
+                "\n"+
+                mensagem.getMensagem());
+        mensagem = new Mensagem();
+        destinatario = new Usuario();
+        
+        FacesUtil.adicionarMensagem("Mensagem enviada com sucesso.");
     }
 
-    public void excluir() throws NonexistentEntityException{
+    public void excluir() throws NonexistentEntityException {
         dao.destroy(mensagem.getId());
         mensagem = new Mensagem();
-        //FacesUtil.adicionarMensagem("Mensagem excluída.");
-        
-        mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
-        mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());
+        FacesUtil.adicionarMensagem("Mensagem excluída.");
+        setMensagem(new Mensagem());
     }
 
     public void carregar(Long id) {
-        mensagem = dao.findMensagem(id);
     }
   
     public List<Usuario> completeUsuario(String query) {  
@@ -92,41 +85,14 @@ public class MensagemMB {
           
         return suggestions;  
     }
-    
-    public void ler() throws NonexistentEntityException, Exception{
-        mensagem.setIsLida(true);
-        dao.edit(mensagem);
-        mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
-        mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());
-    }
 
     public List<Mensagem> getMensagensDoUsuarioLogado() {
-        List<Mensagem> l = dao.findMensagemEntities(FacesUtil.getLoginMB().getUsuario());
-        List<Mensagem> aux = new ArrayList<Mensagem>();
-        for(Mensagem m : l){
-            if(m.getIsIsLida() == false){
-                aux.add(m);
-            }
-        }
-        return aux;
+        return dao.findMensagemEntities(FacesUtil.getLoginMB().getUsuario());
 
     }
     
-    public List<Mensagem> getMensagensDoUsuarioLogadoLidas() {
-        List<Mensagem> l = dao.findMensagemEntities(FacesUtil.getLoginMB().getUsuario());
-        List<Mensagem> aux = new ArrayList<Mensagem>();
-        for(Mensagem m : l){
-            if(m.getIsIsLida() == true){
-                aux.add(m);
-            }
-        }
-        return aux;
-
-    }
-    
-    public void onRowSelect(SelectEvent event) throws NonexistentEntityException, Exception {  
-        mensagem = (Mensagem) event.getObject(); 
-        ler();
+    public void onRowSelect(SelectEvent event) {  
+        mensagem = (Mensagem) event.getObject();  
     }  
   
     public void onRowUnselect() {  
@@ -175,16 +141,16 @@ public class MensagemMB {
     }
 
     /**
-     * @return the mediumMensagensModel
+     * @return the model
      */
-    public MensagemDataModel getMediumMensagensModel() {
-        return mediumMensagensModel;
+    public MensagemDataModel getModel() {
+        return model;
     }
 
     /**
-     * @return the mediumMensagensModelLidas
+     * @param model the model to set
      */
-    public MensagemDataModel getMediumMensagensModelLidas() {
-        return mediumMensagensModelLidas;
+    public void setModel(MensagemDataModel model) {
+        this.model = model;
     }
 }
