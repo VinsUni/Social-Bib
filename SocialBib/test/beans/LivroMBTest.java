@@ -95,19 +95,16 @@ public class LivroMBTest {
      */
     @Test
     public void testAlterar() {
+        LivroJpaController dao = new LivroJpaController(EMF.getEntityManagerFactory());
         LivroMB instance = new LivroMB(); 
-        instance.getLivro().setTitulo("Teste Alterar");
-        instance.getLivro().setAutor("Teste Alterar");
-        instance.getLivro().setAno("999");
-        instance.getLivro().setEditora("Teste Alterar");
-        instance.getLivro().setGenero("Teste Alterar");
-        instance.inserir();
         
-        instance.carregar(Long.valueOf (3));
+        instance.carregar(dao.findLivroEntities().get(0).getId());
+       
         String tituloAntigo = instance.getLivro().getTitulo();
         instance.getLivro().setTitulo("testeAlterar");
         instance.alterar();
-        instance.carregar(Long.valueOf (3));
+        
+        instance.carregar(dao.findLivroEntities().get(0).getId());
         assertNotSame(tituloAntigo, instance.getLivro().getTitulo());
         
     }
@@ -117,20 +114,14 @@ public class LivroMBTest {
      */
     @Test
     public void testExcluir() {
+        LivroJpaController dao = new LivroJpaController(EMF.getEntityManagerFactory());
         LivroMB instance = new LivroMB(); 
-        instance.getLivro().setTitulo("Teste Excluir");
-        instance.getLivro().setAutor("Teste Excluir");
-        instance.getLivro().setAno("999");
-        instance.getLivro().setEditora("Teste Excluir");
-        instance.getLivro().setGenero("Teste Excluir");
-        instance.inserir();
         
-        instance.carregar(Long.valueOf (4));
+        instance.carregar(dao.findLivroEntities().get(0).getId());
+        Long id = instance.getLivro().getId();
         instance.excluir();
         
-        LivroJpaController livro = new  LivroJpaController(EMF.getEntityManagerFactory());
-        
-        assertNull(livro.findLivro(Long.valueOf(4)));
+        assertNull(dao.findLivro(id));
     }
 
 }

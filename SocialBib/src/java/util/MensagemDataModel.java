@@ -4,10 +4,6 @@
  */
 package util;
 
-/**
- *
- * @author CASSIO
- */
 import java.util.List;  
 import javax.faces.model.ListDataModel;  
 import modelo.Mensagem;

@@ -17,6 +17,7 @@ import modelo.Livro;
 import modelo.Usuario;
 import org.apache.commons.mail.EmailException;
 import org.primefaces.event.SelectEvent;
+import org.primefaces.model.UploadedFile;
 import util.EMF;
 import util.FacesUtil;
 import util.Notificador;
@@ -30,6 +31,7 @@ import util.Notificador;
 public class UsuarioMB {
 
     private Usuario usuario = new Usuario();
+    private UploadedFile foto;
     private String emailDeCadastro = new String();
     private String codigo = new String();
     private UsuarioJpaController dao = new UsuarioJpaController(EMF.getEntityManagerFactory());
@@ -67,8 +69,11 @@ public class UsuarioMB {
         if (validarCodigo()) {
             if(!cpfJaExiste()){
                 if(!emailJaExiste(usuario.getEmail())){
+                    //byte[] fotoNova = getFoto().getContents();
+            
+                    //usuario.setFoto(fotoNova);
                     dao.create(usuario);
-                    //FacesUtil.adicionarMensagem("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
+                    FacesUtil.adicionarMensagem("Pronto, você se cadastrou! Agora já pode entrar no sistema.");
                     return "index.xhtml";
                 } else {
                     FacesUtil.adicionarMensagem("formCadastro:campoEmail",
@@ -315,6 +320,20 @@ public class UsuarioMB {
      */
     private int getConstanteDeCriptografia(){
         return 50;
+    }
+
+    /**
+     * @return the foto
+     */
+    public UploadedFile getFoto() {
+        return foto;
+    }
+
+    /**
+     * @param foto the foto to set
+     */
+    public void setFoto(UploadedFile foto) {
+        this.foto = foto;
     }
      
 }

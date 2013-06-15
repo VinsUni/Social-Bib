@@ -16,15 +16,26 @@ public class UsuarioConverter implements Converter {
 
     @Override
     public Object getAsObject(FacesContext fc, UIComponent uic, String id) {
-        UsuarioJpaController dao = new UsuarioJpaController(EMF.getEntityManagerFactory());
-        Usuario usuario = dao.findUsuario(Long.valueOf(id));
-        return usuario;
+        try{
+            UsuarioJpaController dao = new UsuarioJpaController(EMF.getEntityManagerFactory());
+            Usuario usuario = dao.findUsuario(Long.valueOf(id));
+            return usuario;
+            
+        }catch(Exception e){ 
+            return null;
+        }
+        
     }
 
     @Override
     public String getAsString(FacesContext fc, UIComponent uic, Object o) {
-        Usuario usuario = new Usuario();
-        usuario = (Usuario) o;
-        return String.valueOf(usuario.getId());
+       // if(o != null){
+            Usuario usuario = new Usuario();
+            usuario = (Usuario) o;
+            return String.valueOf(usuario.getId());
+       // }else{
+           // FacesUtil.adicionarMensagem("A mensagem necessita de um destinatário para ser enviada");
+           // return null;
+       // }
     }
 }

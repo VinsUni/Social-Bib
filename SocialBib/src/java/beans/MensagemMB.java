@@ -7,18 +7,15 @@ package beans;
 import dao.MensagemJpaController;
 import dao.UsuarioJpaController;
 import dao.exceptions.NonexistentEntityException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import modelo.Livro;
 import modelo.Mensagem;
 import modelo.Usuario;
 import org.apache.commons.mail.EmailException;
 import org.primefaces.event.SelectEvent;
-import org.primefaces.event.UnselectEvent;
 import util.EMF;
 import util.FacesUtil;
 import util.MensagemDataModel;
@@ -36,42 +33,52 @@ public class MensagemMB {
     private MensagemJpaController dao = new MensagemJpaController(EMF.getEntityManagerFactory());
     private Usuario destinatario = new Usuario();
     private Notificador notificador = new Notificador();
-    private MensagemDataModel model;
+    private MensagemDataModel mediumMensagensModel;
+    private MensagemDataModel mediumMensagensModelLidas;
     
     public MensagemMB(){
-        model = new MensagemDataModel(getMensagensDoUsuarioLogado());
+        mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
+        mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());  
     }
 
     public void enviar() throws EmailException {
-        LoginMB lmb = FacesUtil.getLoginMB();
-       
-        mensagem.setRemetente(lmb.getUsuario());
-        mensagem.setDestinatario(getDestinatario());
-        mensagem.setData(new Date());
+        if(getDestinatario() != null){
+            LoginMB lmb = FacesUtil.getLoginMB();
+            mensagem.setRemetente(lmb.getUsuario());
+            mensagem.setDestinatario(getDestinatario());
+            mensagem.setData(new Date());
 
-        dao.create(mensagem);
-        
-        getNotificador().enviarMensagem(mensagem.getDestinatario().getEmail(), 
-                "Nova mensagem de "+mensagem.getRemetente().getNome(), 
-                "Você recebeu uma nova mensagem de "+mensagem.getRemetente().getNome()+"."+
-                "\n"+
-                "\n"+
-                "\n"+
-                mensagem.getMensagem());
-        mensagem = new Mensagem();
-        destinatario = new Usuario();
-        
-        FacesUtil.adicionarMensagem("Mensagem enviada com sucesso.");
+            dao.create(mensagem);
+
+            getNotificador().enviarMensagem(mensagem.getDestinatario().getEmail(), 
+                    "Nova mensagem de "+mensagem.getRemetente().getNome(), 
+                    "Você recebeu uma nova mensagem de "+mensagem.getRemetente().getNome()+"."+
+                    "\n"+
+                    "\n"+
+                    "\n"+
+                    mensagem.getMensagem());
+            mensagem = new Mensagem();
+            destinatario = new Usuario();
+
+            FacesUtil.adicionarMensagem("Mensagem enviada com sucesso.");
+            mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
+            mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());
+        }else{
+            FacesUtil.adicionarMensagem("A mensagem precisa de um destinatário para ser enviada.");
+        }
     }
 
-    public void excluir() throws NonexistentEntityException {
+    public void excluir() throws NonexistentEntityException{
         dao.destroy(mensagem.getId());
         mensagem = new Mensagem();
-        FacesUtil.adicionarMensagem("Mensagem excluída.");
-        setMensagem(new Mensagem());
+        //FacesUtil.adicionarMensagem("Mensagem excluída.");
+        
+        mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
+        mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());
     }
 
     public void carregar(Long id) {
+        mensagem = dao.findMensagem(id);
     }
   
     public List<Usuario> completeUsuario(String query) {  
@@ -85,14 +92,41 @@ public class MensagemMB {
           
         return suggestions;  
     }
+    
+    public void ler() throws NonexistentEntityException, Exception{
+        mensagem.setIsLida(true);
+        dao.edit(mensagem);
+        mediumMensagensModel = new MensagemDataModel(getMensagensDoUsuarioLogado());  
+        mediumMensagensModelLidas = new MensagemDataModel(getMensagensDoUsuarioLogadoLidas());
+    }
 
     public List<Mensagem> getMensagensDoUsuarioLogado() {
-        return dao.findMensagemEntities(FacesUtil.getLoginMB().getUsuario());
+        List<Mensagem> l = dao.findMensagemEntities(FacesUtil.getLoginMB().getUsuario());
+        List<Mensagem> aux = new ArrayList<Mensagem>();
+        for(Mensagem m : l){
+            if(m.getIsIsLida() == false){
+                aux.add(m);
+            }
+        }
+        return aux;
 
     }
     
-    public void onRowSelect(SelectEvent event) {  
-        mensagem = (Mensagem) event.getObject();  
+    public List<Mensagem> getMensagensDoUsuarioLogadoLidas() {
+        List<Mensagem> l = dao.findMensagemEntities(FacesUtil.getLoginMB().getUsuario());
+        List<Mensagem> aux = new ArrayList<Mensagem>();
+        for(Mensagem m : l){
+            if(m.getIsIsLida() == true){
+                aux.add(m);
+            }
+        }
+        return aux;
+
+    }
+    
+    public void onRowSelect(SelectEvent event) throws NonexistentEntityException, Exception {  
+        mensagem = (Mensagem) event.getObject(); 
+        ler();
     }  
   
     public void onRowUnselect() {  
@@ -141,16 +175,16 @@ public class MensagemMB {
     }
 
     /**
-     * @return the model
+     * @return the mediumMensagensModel
      */
-    public MensagemDataModel getModel() {
-        return model;
+    public MensagemDataModel getMediumMensagensModel() {
+        return mediumMensagensModel;
     }
 
     /**
-     * @param model the model to set
+     * @return the mediumMensagensModelLidas
      */
-    public void setModel(MensagemDataModel model) {
-        this.model = model;
+    public MensagemDataModel getMediumMensagensModelLidas() {
+        return mediumMensagensModelLidas;
     }
 }

@@ -113,7 +113,7 @@ public class LoginMB {
     public String logar(){
         if (validarLogin()){
             setLogado();
-            return "principal.xhtml";
+            return "/privado/principal.xhtml";
         } else {
             FacesUtil.adicionarMensagem("formEntrar", "E-mail ou senha inválida.");
             return null;

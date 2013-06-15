@@ -33,6 +33,8 @@ public class Usuario implements Serializable {
     
     @Column(nullable=false)
     private String senha;
+    
+    private byte[] foto;
 
     public Long getId() {
         return id;
@@ -121,6 +123,20 @@ public class Usuario implements Serializable {
      */
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    /**
+     * @return the foto
+     */
+    public byte[] getFoto() {
+        return foto;
+    }
+
+    /**
+     * @param foto the foto to set
+     */
+    public void setFoto(byte[] foto) {
+        this.foto = foto;
     }
     
 }

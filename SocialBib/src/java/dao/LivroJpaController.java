@@ -10,6 +10,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -148,6 +149,20 @@ public class LivroJpaController implements Serializable {
             return ((Long) q.getSingleResult()).intValue();
         } finally {
             em.close();
+        }
+    }
+    
+     public Livro findLivroPorIsbn(String isbn) {
+        EntityManager em = getEntityManager();
+        TypedQuery<Livro> query;
+        query = em.createQuery("select u from Livro u where u.isbn = :isbn",
+                               Livro.class);
+        query.setParameter("isbn", isbn);
+        try{
+            Livro u = query.getSingleResult();
+            return u;
+        }catch(NoResultException e){
+            return null;
         }
     }
     

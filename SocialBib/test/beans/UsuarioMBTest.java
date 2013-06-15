@@ -62,12 +62,8 @@ public class UsuarioMBTest {
 
     @AfterClass
     public static void tearDownClass() {
-        /*UsuarioJpaController dao = new UsuarioJpaController(EMF.getEntityManagerFactory());
-        try {
-            dao.destroy(dao.findUsuario("cassio@gmail.com", "123").getId());
-        } catch (NonexistentEntityException ex) {
-            Logger.getLogger(UsuarioMBTest.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        
+        
     }
 
     @Before
