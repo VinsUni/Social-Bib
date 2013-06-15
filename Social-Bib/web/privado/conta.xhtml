@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <title>Configurações de conta</title>
+        <link rel="stylesheet" type="text/css" href="indexCss.css"/>
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+    </h:head>
+    <f:view encoding="ISO-8859-1">
+        <h1>Social Bib </h1>
+
+        <h:form>  
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Livros" icon="ui-icon-document" >   
+                    <p:menuitem value="Cadastro de Livros" ajax="false" action="cadastroLivro.xhtml" icon="ui-icon-circle-plus"/> 
+                    <p:menuitem value="Busca de Livros" ajax="false" action="pesquisarLivro.xhtml" icon="ui-icon-search"/>  
+                    <p:separator />  
+                    <p:menuitem value="Meus Livros" action="meusLivros.xhtml" ajax="false" icon="ui-icon-arrowreturnthick-1-e"/>  
+                </p:submenu>  
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu> 
+                
+                <p:menuitem value="Mensagem" ajax="false" action="mensagem.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+            </p:menubar>  
+
+        </h:form>
+
+        <h:form id="formAlterar">
+            <h2>Alteração de dados da conta</h2>
+
+            <h:panelGrid id="formAlterarUsuario" columns="2" cellspacing="5" cellpadding="2">
+                <h:outputText value="Nome "/>
+                <p:inputText id="campoNome" value="#{usuarioMB.usuario.nome}" required="true" 
+                             requiredMessage="O nome é obrigatório" maxlength="250"/>
+
+                <h:outputText value="E-mail "/>
+                <p:inputText id="campoEmail" value="#{usuarioMB.usuario.email}" required="true"
+                             requiredMessage="O email é obrigatório" validatorMessage="Este e-mail está errado"
+                             maxlength="100">
+                    <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$"/>
+                </p:inputText>
+
+                <h:outputText value="CPF "/>
+                <p:inputMask id="campoCpf" value="#{usuarioMB.usuario.cpf}" required="true"
+                             requiredMessage="O CPF é obrigatório" validatorMessage="Digite o CPF no formato 123.456.789-01"
+                             maxlength="14" mask="999.999.999-99"/>
+
+                <h:outputText value="Senha " />  
+                <p:password id="pwd1" value="#{usuarioMB.usuario.senha}" match="pwd2"
+                            required="true" requiredMessage="Digite sua senha"
+                            validatorMessage="As senhas estão diferentes"/>  
+
+                <h:outputText value="Confirme sua senha " />  
+                <p:password id="pwd2" value="#{usuarioMB.usuario.senha}" required="true"
+                            requiredMessage="Confirme sua senha"
+                            validatorMessage="As senhas estão diferentes"/> 
+
+                <p:commandButton ajax="false" value="Alterar dados" action="#{usuarioMB.alterar()}"/>
+
+
+            </h:panelGrid>
+
+        </h:form>
+
+        <h:form id="botaoExcluirConta">
+            <p:commandLink value="Excluir Conta" onclick="dce.show();"/>
+        </h:form>
+
+        <p:dialog id="dialogConfirmacaoDeExclusao" header="Confirmação de Exclusão"
+                  widgetVar="dce" modal="true" height="150" closeOnEscape="true"
+                  resizable="false" >  
+            <h:outputText value="Você deseja realmente excluir sua conta e todos os seus dados?"/> 
+            <h:panelGrid columns="2" cellspacing="20"> 
+                <h:form id="formConfirmarExclusao">
+                    <p:commandButton ajax="false" value="Excluir conta"
+                                     action="#{usuarioMB.excluir()}" rendered="true"/>
+                </h:form>
+
+                <h:form>
+                    <p:commandButton global="false" process="@this"
+                                     readonly="true" transient="true"
+                                     immediate="true" value="Não"
+                                     style="margin-top: 5px;"
+                                     onclick="resumoDialog.hide();return false;"/> 
+                </h:form>
+            </h:panelGrid>
+        </p:dialog>
+    </f:view>
+</html>
+
