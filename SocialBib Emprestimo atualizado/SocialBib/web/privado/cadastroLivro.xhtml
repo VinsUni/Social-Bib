@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <title>Cadastro de Livros</title>
+        <link rel="stylesheet" type="text/css" href="indexCss.css"/>
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+    </h:head>
+    <f:view encoding="ISO-8859-1">
+        <h1>Social Bib </h1>
+
+        <h:form>  
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Livros" icon="ui-icon-document" >   
+                    <p:menuitem value="Cadastro de Livros" ajax="false" action="cadastroLivro.xhtml" icon="ui-icon-circle-plus"/> 
+                    <p:menuitem value="Busca de Livros" ajax="false" action="pesquisarLivro.xhtml" icon="ui-icon-search"/>  
+                    <p:separator />  
+                    <p:menuitem value="Meus Livros" action="meusLivros.xhtml" ajax="false" icon="ui-icon-arrowreturnthick-1-e"/>  
+                </p:submenu>
+                
+                <p:submenu label="Empréstimos" icon="ui-icon-note">  
+                    <p:menuitem value="Meus empréstimos" ajax="false" action="meus_emprestimos.xhtml" icon="ui-icon-folder-collapsed"/>  
+                    <p:menuitem value="Responder solicitações" ajax="false" action="emprestimos.xhtml" icon="ui-icon-check"/>
+                </p:submenu>
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu>
+                
+                <p:menuitem value="Mensagem" ajax="false" action="mensagem.xhtml" icon="ui-icon-mail-closed" />   
+            </p:menubar>  
+
+        </h:form>
+
+        <h:form id="formCadastrarLivro">
+            <h2>Cadastro de Livros</h2>
+
+            <h:panelGrid id="display" columns="2" cellspacing="5" cellpadding="2">  
+
+                <h:outputText value="Titulo "/>
+                <p:inputText id="campoTitulo" value="#{livroMB.livro.titulo}" required="true" 
+                             requiredMessage="O titulo é obrigatório" maxlength="250"/>
+
+                <h:outputText value="ISBN "/>
+                <p:inputMask id="campoIsbn" value="#{livroMB.livro.isbn}" required="true" 
+                             requiredMessage="O ISBN é obrigatório" mask="99-999-9999-9"/>
+
+
+                <h:outputText value="Autor "/>
+                <p:inputText id="campoAutor" value="#{livroMB.livro.autor}" required="true" 
+                             requiredMessage="O autor é obrigatório" maxlength="250"/>
+
+                <h:outputText value="Gênero "/>
+                <p:selectOneMenu value="#{livroMB.livro.genero}" required="true"
+                                 requiredMessage="O genero é obrigatório">  
+                    <f:selectItem itemLabel="Selecione" itemValue=""/>  
+                    <f:selectItem itemLabel="ROMANCE" itemValue="ROMANCE"/>  
+                    <f:selectItem itemLabel="DRAMATURGIA" itemValue="DRAMATURGIA"/>  
+                    <f:selectItem itemLabel="TERROR" itemValue="TERROR"/>
+                    <f:selectItem itemLabel="INFORMÁTICA" itemValue="INFORMÁTICA"/>
+                    <f:selectItem itemLabel="GEOGRAFIA" itemValue="GEOGRAFIA"/>
+                    <f:selectItem itemLabel="HISTÓRIA" itemValue="INFORMÁTICA"/>
+                    <f:selectItem itemLabel="LITERATURA" itemValue="LITERATURA"/>
+                    <f:selectItem itemLabel="FICÇÃO" itemValue="FICÇÃO"/>
+                    <f:selectItem itemLabel="PSICOLOGIA EDUCACIONAL" itemValue="PSICOLOGIA EDUCACIONAL"/>
+                    <f:selectItem itemLabel="PROJETO EDUCACIONAL" itemValue="PROJETO EDUCACIONAL"/>
+                    <f:selectItem itemLabel="FILOSOFIA DA EDUCAÇÃO" itemValue="FILOSOFIA DA EDUCAÇÃO"/>
+                    <f:selectItem itemLabel="TEORIAS PEDAGÓGICAS" itemValue="TEORIAS PEDAGÓGICAS"/>
+                    <f:selectItem itemLabel="EDUCAÇÃO ESPECIAL" itemValue="EDUCAÇÃO ESPECIAL"/>
+                    <f:selectItem itemLabel="DIDATICA E ENSINO" itemValue="DIDATICA E ENSINO"/>
+                    <f:selectItem itemLabel="POLITICAS EDUCACIONAIS" itemValue="POLITICAS EDUCACIONAIS"/>
+                    <f:selectItem itemLabel="COMUNICAÇÃO E MÍDIA" itemValue="COMUNICAÇÃO E MÍDIA"/>
+                    <f:selectItem itemLabel="METODOLOGIA DE ENSINO" itemValue="METODOLOGIA DE ENSINO"/>
+                    <f:selectItem itemLabel="GESTÃO EDUCACIONAL" itemValue="GESTÃO EDUCACIONAL"/>
+                    <f:selectItem itemLabel="ALFABETIZAÇÃO" itemValue="ALFABETIZAÇÃO"/>
+                    <f:selectItem itemLabel="EDUCAÇÃO INFANTIL" itemValue="EDUCAÇÃO INFANTIL"/>
+                    <f:selectItem itemLabel="OUTROS" itemValue="OUTROS"/>
+                    <h:message for="campoGenero"/>
+                </p:selectOneMenu>
+
+                <h:outputText value="Editora "/>
+                <p:inputText id="campoEditora" value="#{livroMB.livro.editora}" required="true" 
+                             requiredMessage="A editora é obrigatória" maxlength="250"/>
+
+                <h:outputText value="Ano "/>
+                <p:inputMask id="campoAno" value="#{livroMB.livro.ano}" required="true" 
+                             requiredMessage="O ano é obrigatório" mask="9999"/>
+
+
+                <p:commandButton ajax="false" value="Cadastrar" action="#{livroMB.inserir()}"/>
+
+                <p:commandButton ajax="false" value="Alterar" action="#{livroMB.alterar()}"/>
+
+            </h:panelGrid>
+
+        </h:form>
+
+        <h:form id="botaoExcluirLivro">
+            <p:commandButton value="Excluir" onclick="dlg2.show();"/>
+        </h:form>
+
+        <p:dialog id="modalDialog" header="Confirmação de Exclusão" widgetVar="dlg2" modal="true" height="150">  
+            <h:outputText value="Você deseja excluir o livro realmente?" /> 
+            <h:panelGrid columns="2" cellspacing="20"> 
+                <h:form>
+                    <p:commandButton ajax="false" value="Sim" action="#{livroMB.excluir()}"/>
+                </h:form>
+                
+                <h:form>
+                    <p:commandButton global="false" process="@this" readonly="true" transient="true" immediate="true" value="Não" style="margin-top: 5px;" onclick="resumoDialog.hide();return false;"/> 
+                </h:form>
+            </h:panelGrid>
+        </p:dialog>
+
+        <h:form id="formTabelaLivro" > 
+            <p:growl id="growl" showSummary="false" showDetail="true"/>
+
+            <p:dataTable id="livros" var="livro" value="#{livroMB.livrosDoUsuarioLogado}" rowKey="#{livro}"
+                         selection="#{livroMB.livro}" selectionMode="single"
+                         emptyMessage="Você não cadastrou nenhum livro." >
+
+                <p:ajax event="rowSelect" immediate="true" update=":formCadastrarLivro" />  
+                <p:ajax event="rowUnselect" immediate="true" update=":formCadastrarLivro"/>
+
+                <f:facet name="header">  
+                    Seus Livros  
+                </f:facet> 
+
+                <p:column headerText="ISBN" >  
+                    #{livro.isbn}  
+                </p:column>
+
+                <p:column headerText="Título">  
+                    #{livro.titulo}  
+                </p:column>  
+
+                <p:column headerText="Autor">  
+                    #{livro.autor}  
+                </p:column>  
+
+                <p:column headerText="Gênero" >  
+                    #{livro.genero}  
+                </p:column>  
+
+                <p:column headerText="Editora">  
+                    #{livro.editora}  
+                </p:column>
+
+                <p:column headerText="Ano">  
+                    #{livro.ano}  
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </f:view>
+</html>

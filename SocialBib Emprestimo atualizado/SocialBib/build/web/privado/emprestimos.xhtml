@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <h:head>
+        <title>Solicitações de Emprestimos</title>
+        <link rel="stylesheet" type="text/css" href="indexCss.css"/>
+        <p:growl id="growl" showSummary="false" showDetail="true"/>
+    </h:head>
+    <f:view encoding="ISO-8859-1">
+        <h1>Social Bib </h1>
+
+        <h:form> 
+            <p:growl id="growl" showSummary="false" showDetail="true"/>
+            <p:menubar > 
+                <p:menuitem value="Home" ajax="false" action="principal.xhtml" icon="ui-icon-home"/> 
+
+                <p:submenu label="Livros" icon="ui-icon-document" >   
+                    <p:menuitem value="Cadastro de Livros" ajax="false" action="cadastroLivro.xhtml" icon="ui-icon-circle-plus"/> 
+                    <p:menuitem value="Busca de Livros" ajax="false" action="pesquisarLivro.xhtml" icon="ui-icon-search"/>  
+                    <p:separator />  
+                    <p:menuitem value="Meus Livros" action="meusLivros.xhtml" ajax="false" icon="ui-icon-arrowreturnthick-1-e"/>  
+                </p:submenu>
+                
+                <p:submenu label="Empréstimos" icon="ui-icon-note">  
+                    <p:menuitem value="Meus empréstimos" ajax="false" action="meus_emprestimos.xhtml" icon="ui-icon-folder-collapsed"/>  
+                    <p:menuitem value="Responder solicitações" ajax="false" action="emprestimos.xhtml" icon="ui-icon-check"/>
+                </p:submenu>
+
+                <p:submenu label="Conta" icon="ui-icon-wrench">  
+                    <p:menuitem value="Alterar Dados" ajax="false" action="conta.xhtml" icon="ui-icon-arrowreturnthick-1-e" />  
+                    <p:separator />
+                    <p:menuitem value="Sair" ajax="false" action="#{loginMB.deslogar()}" icon="ui-icon-closethick" />
+                </p:submenu>
+                
+                <p:menuitem value="Mensagem" ajax="false" action="mensagem.xhtml" icon="ui-icon-mail-closed" />   
+            </p:menubar>  
+
+        </h:form>
+
+        <h:form id="tabelaEmprestimos"> 
+            <p:dataTable id="emprestimos" var="emprestimo" value="#{emprestimoMB.solicitacoesPendentes}" 
+                         rowKey="#{emprestimo}"
+                         emptyMessage="Você não tem nem uma nova solicitação." >
+
+                <f:facet name="header">  
+                    Solicitações  
+                </f:facet> 
+
+                <p:column headerText="Livro" style="width:37%">  
+                    #{emprestimo.livro.titulo}  
+                </p:column>
+
+                <p:column headerText="Quem pediu" style="width:37%">  
+                    #{emprestimo.usuario.nome}  
+                </p:column>  
+
+                <p:column headerText="Ação" style="width:10%"> 
+                    <form>
+                        <p:commandLink value="Emprestar" ajax="false" action="#{emprestimoMB.aceitar(emprestimo)}" update="emprestimos"/>
+                        <h:outputText value="  "/>
+                        <p:commandLink value="Negar" ajax="false" action="#{emprestimoMB.recusar(emprestimo)}" update="emprestimos"/>
+                    </form>
+                </p:column> 
+            </p:dataTable>
+        </h:form>
+    </f:view>
+</html>
